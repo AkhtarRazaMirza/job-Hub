@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js & Build Outputs
+.next/
+out/
+build/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# Environment & Secrets
+.env
+.env*.local
+.env.development
+.env.test
+.env.production
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+playwright-report/
+blob-report/
+test-results/
+
+# Local / Temporary Cache
+.cache/
+.temp/
+.inngest/
+
+# IDE & Editor Files
+.idea/
+*.swp
+*.swo
+*~
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Operating System Files
+.DS_Store
+Thumbs.db
