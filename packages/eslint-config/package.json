@@ -1,0 +1,17 @@
+{
+  "name": "@job-hub/eslint-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./base.js",
+    "./nextjs": "./nextjs.js"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.20.0",
+    "eslint-config-next": "^16.3.3"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  }
+}

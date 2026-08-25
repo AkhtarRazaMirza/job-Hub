@@ -1,10 +1,3 @@
-import nextConfig from "eslint-config-next";
+import nextJsConfig from "@job-hub/eslint-config/nextjs";
 
-const eslintConfig = [
-  ...nextConfig,
-  {
-    ignores: [".next/*", "node_modules/*", "dist/*"],
-  },
-];
-
-export default eslintConfig;
+export default nextJsConfig;
