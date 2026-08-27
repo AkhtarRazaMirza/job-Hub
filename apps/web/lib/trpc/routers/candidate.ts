@@ -7,12 +7,17 @@ import {
   analyzeGitHubRepoInputSchema,
   confirmProjectInputSchema,
   deleteProjectInputSchema,
+  crawlPortfolioInputSchema,
+  confirmPortfolioProjectsInputSchema,
+  updateLinkedInUrlInputSchema,
 } from "@job-hub/candidate";
 import {
   candidateProfileService,
   candidateProfilerService,
   candidatePreferencesService,
   candidateProjectService,
+  candidatePortfolioService,
+  unifiedProfileService,
   CandidateProfileConflictError,
   CandidateProfileNotFoundError,
   CandidateProfileValidationError,
@@ -23,6 +28,10 @@ import {
   GitHubError,
   GitHubNotFoundError,
   GitHubRateLimitError,
+  PortfolioError,
+  PortfolioSecurityError,
+  PortfolioTimeoutError,
+  PortfolioSizeLimitError,
 } from "@job-hub/candidate/server";
 import { TRPCError } from "@trpc/server";
 
@@ -276,4 +285,113 @@ export const candidateRouter = router({
         });
       }
     }),
+
+  /**
+   * Crawl and extract structured project information from a candidate portfolio website.
+   * Grounded in 02_how_to_build.md §3 and 04_ai_agent_skills.md §4.
+   * Returns preview draft with INFERRED status for user review.
+   */
+  crawlPortfolio: protectedProcedure
+    .input(crawlPortfolioInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await candidatePortfolioService.crawlAndExtractPortfolio(
+          ctx.user.id,
+          input.portfolioUrl
+        );
+      } catch (error) {
+        if (error instanceof CandidateProfileNotFoundError) {
+          throw new TRPCError({ code: "NOT_FOUND", message: error.message });
+        }
+        if (error instanceof PortfolioSecurityError) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: error.message,
+          });
+        }
+        if (error instanceof PortfolioTimeoutError) {
+          throw new TRPCError({
+            code: "TIMEOUT",
+            message: "Portfolio crawl timed out. Ensure the site is reachable.",
+          });
+        }
+        if (error instanceof PortfolioSizeLimitError) {
+          throw new TRPCError({
+            code: "PAYLOAD_TOO_LARGE",
+            message: error.message,
+          });
+        }
+        if (error instanceof PortfolioError) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to crawl portfolio site",
+        });
+      }
+    }),
+
+  /**
+   * Confirm and save selected portfolio projects to candidate profile.
+   * Grounded in 02_how_to_build.md §3 ("User confirmation -> Save").
+   */
+  confirmPortfolio: protectedProcedure
+    .input(confirmPortfolioProjectsInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await candidatePortfolioService.confirmPortfolioProjects(ctx.user.id, input);
+      } catch (error) {
+        if (error instanceof CandidateProfileNotFoundError) {
+          throw new TRPCError({ code: "NOT_FOUND", message: error.message });
+        }
+        if (error instanceof CandidateProfileValidationError) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to confirm portfolio projects",
+        });
+      }
+    }),
+
+  /**
+   * Links or updates the candidate's verified LinkedIn profile URL.
+   * Grounded in 01_build_the_system.md §4 Step 1 ("Optional LinkedIn").
+   */
+  updateLinkedInUrl: protectedProcedure
+    .input(updateLinkedInUrlInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await unifiedProfileService.updateLinkedInUrl(ctx.user.id, input);
+      } catch (error) {
+        if (error instanceof CandidateProfileNotFoundError) {
+          throw new TRPCError({ code: "NOT_FOUND", message: error.message });
+        }
+        if (error instanceof CandidateProfileValidationError) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update LinkedIn profile URL",
+        });
+      }
+    }),
+
+  /**
+   * Retrieves the unified candidate profile with full truthfulness audit metrics.
+   * Grounded in 01_build_the_system.md §2 & §4, and 04_ai_agent_skills.md §2 & §21 (ResumeVerifier).
+   */
+  getUnifiedProfile: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      return await unifiedProfileService.getUnifiedProfile(ctx.user.id);
+    } catch (error) {
+      if (error instanceof CandidateProfileNotFoundError) {
+        throw new TRPCError({ code: "NOT_FOUND", message: error.message });
+      }
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to retrieve unified candidate profile",
+      });
+    }
+  }),
 });

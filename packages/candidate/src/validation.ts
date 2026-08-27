@@ -6,6 +6,7 @@ import { z } from "zod";
 export const verificationStatusSchema = z.enum([
   "VERIFIED",
   "INFERRED",
+  "USER_PROVIDED",
   "USER_REQUIRED",
 ]);
 

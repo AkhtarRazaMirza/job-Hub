@@ -72,12 +72,13 @@ export default async function ProfilePage() {
     caller.resume.list(),
   ]);
 
-  const [initialPreferences, initialProjects] = initialProfile
+  const [initialPreferences, initialProjects, initialTruthfulness] = initialProfile
     ? await Promise.all([
         caller.candidate.getPreferences().catch(() => null),
         caller.candidate.listProjects().catch(() => []),
+        caller.candidate.getUnifiedProfile().then((res) => res.truthfulness).catch(() => null),
       ])
-    : [null, []];
+    : [null, [], null];
 
   return (
     <main className="container mx-auto max-w-3xl px-4 py-8 sm:py-12">
@@ -106,6 +107,7 @@ export default async function ProfilePage() {
         initialResumes={initialResumes}
         initialPreferences={initialPreferences}
         initialProjects={initialProjects}
+        initialTruthfulness={initialTruthfulness}
       />
     </main>
   );

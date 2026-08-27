@@ -11,7 +11,7 @@
  * distinguish verified facts from inference. If information is missing: USER_REQUIRED"
  * (01_build_the_system.md §2, 02_how_to_build.md §12, 04_ai_agent_skills.md §2)
  */
-export type VerificationStatus = "VERIFIED" | "INFERRED" | "USER_REQUIRED";
+export type VerificationStatus = "VERIFIED" | "INFERRED" | "USER_PROVIDED" | "USER_REQUIRED";
 
 /**
  * Remote preference classifications explicitly defined in Job Hub specifications.
@@ -49,6 +49,8 @@ export interface CandidateProfile {
   id: string;
   userId: string;
   headline?: string | null;
+  portfolioUrl?: string | null;
+  linkedinUrl?: string | null;
   profileData?: StructuredCandidateProfile | null;
   sourceResumeId?: string | null;
   profiledAt?: Date | null;

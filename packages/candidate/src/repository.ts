@@ -18,6 +18,8 @@ export class DrizzleCandidateProfileRepository implements CandidateProfileReposi
     id: string;
     userId: string;
     headline?: string | null;
+    portfolioUrl?: string | null;
+    linkedinUrl?: string | null;
     profileData?: unknown;
     sourceResumeId?: string | null;
     profiledAt?: Date | null;
@@ -28,6 +30,8 @@ export class DrizzleCandidateProfileRepository implements CandidateProfileReposi
       id: row.id,
       userId: row.userId,
       headline: row.headline ?? null,
+      portfolioUrl: row.portfolioUrl ?? null,
+      linkedinUrl: row.linkedinUrl ?? null,
       profileData: (row.profileData as any) ?? null,
       sourceResumeId: row.sourceResumeId ?? null,
       profiledAt: row.profiledAt ?? null,

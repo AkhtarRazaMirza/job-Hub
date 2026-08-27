@@ -57,6 +57,20 @@
       "when": 1787851083195,
       "tag": "0007_striped_silver_surfer",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787851721247,
+      "tag": "0008_grey_gunslinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787852582840,
+      "tag": "0009_wet_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

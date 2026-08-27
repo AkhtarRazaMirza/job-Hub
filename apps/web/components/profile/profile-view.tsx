@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -17,6 +17,9 @@ import { ResumeSection, type ResumeItem } from "./resume-section";
 import { StructuredProfileSection } from "./structured-profile-section";
 import { PreferencesSection } from "./preferences-section";
 import { ProjectsSection, type ProjectItem } from "./projects-section";
+import { PortfolioSection } from "./portfolio-section";
+import { LinkedInSection } from "./linkedin-section";
+import { TruthfulnessSummaryCard } from "./truthfulness-summary-card";
 import {
   createProfileInputSchema,
   updateProfileInputSchema,
@@ -24,6 +27,7 @@ import {
   type StructuredCandidateProfile,
   type CandidatePreferences,
   type VerificationStatus,
+  type TruthfulnessSummary,
 } from "@job-hub/candidate";
 import {
   CheckCircle2,
@@ -53,6 +57,8 @@ export type CandidateProfileData = {
   id: string;
   userId: string;
   headline?: string | null;
+  portfolioUrl?: string | null;
+  linkedinUrl?: string | null;
   profileData?: StructuredCandidateProfile | null;
   sourceResumeId?: string | null;
   profiledAt?: Date | string | null;
@@ -66,6 +72,7 @@ interface ProfileViewProps {
   initialResumes?: ResumeItem[];
   initialPreferences?: CandidatePreferences | null;
   initialProjects?: ProjectItem[];
+  initialTruthfulness?: TruthfulnessSummary | null;
 }
 
 function normalizeProfile(raw: CandidateProfileData | null): CandidateProfile | null {
@@ -74,6 +81,8 @@ function normalizeProfile(raw: CandidateProfileData | null): CandidateProfile | 
     id: raw.id,
     userId: raw.userId,
     headline: raw.headline ?? null,
+    portfolioUrl: raw.portfolioUrl ?? null,
+    linkedinUrl: raw.linkedinUrl ?? null,
     profileData: raw.profileData ?? null,
     sourceResumeId: raw.sourceResumeId ?? null,
     profiledAt:
@@ -93,12 +102,16 @@ export function ProfileView({
   initialResumes = [],
   initialPreferences = null,
   initialProjects = [],
+  initialTruthfulness = null,
 }: ProfileViewProps) {
   const [profile, setProfile] = useState<CandidateProfile | null>(() =>
     normalizeProfile(initialProfile)
   );
   const [preferences, setPreferences] = useState<CandidatePreferences | null>(
     () => initialPreferences
+  );
+  const [truthfulness, setTruthfulness] = useState<TruthfulnessSummary | null>(
+    () => initialTruthfulness || null
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +120,17 @@ export function ProfileView({
     title: string;
     message: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (profile && !truthfulness) {
+      trpcClient.candidate.getUnifiedProfile
+        .query()
+        .then((res) => {
+          setTruthfulness(res.truthfulness);
+        })
+        .catch(() => {});
+    }
+  }, [profile, truthfulness]);
 
   // Deterministic Foundational Completion Calculation
   const foundationChecks = [
@@ -483,6 +507,11 @@ export function ProfileView({
         </CardContent>
       </Card>
 
+      {/* Step 2.11: Profile Truthfulness & Ingestion Audit Summary */}
+      {truthfulness && (
+        <TruthfulnessSummaryCard truthfulness={truthfulness} />
+      )}
+
       {/* 4. Candidate Profile Persistence Record & Actions Card */}
       <Card aria-labelledby="persistence-heading">
         <CardHeader className="pb-4">
@@ -687,6 +716,21 @@ export function ProfileView({
       {/* 6. Verified Projects Section (Step 2.9) */}
       {profile && (
         <ProjectsSection initialProjects={initialProjects} />
+      )}
+
+      {/* 7. Portfolio Website Ingestion Section (Step 2.10) */}
+      {profile && (
+        <PortfolioSection initialPortfolioUrl={profile.portfolioUrl} />
+      )}
+
+      {/* 8. Optional LinkedIn Profile Section (Step 2.11) */}
+      {profile && (
+        <LinkedInSection
+          initialLinkedInUrl={profile.linkedinUrl}
+          onLinkedInUpdated={(url) => {
+            setProfile((prev) => (prev ? { ...prev, linkedinUrl: url } : null));
+          }}
+        />
       )}
     </div>
   );

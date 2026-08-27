@@ -12,6 +12,8 @@ export const candidateProfiles = pgTable(
       .unique()
       .references(() => user.id, { onDelete: "cascade" }),
     headline: text("headline"),
+    portfolioUrl: text("portfolio_url"),
+    linkedinUrl: text("linkedin_url"),
     profileData: jsonb("profile_data"),
     sourceResumeId: text("source_resume_id").references((): AnyPgColumn => resumes.id, { onDelete: "set null" }),
     profiledAt: timestamp("profiled_at", { withTimezone: true }),
