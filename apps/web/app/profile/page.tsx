@@ -90,6 +90,7 @@ export default async function ProfilePage() {
           id: session.user.id,
           name: session.user.name ?? null,
           email: session.user.email,
+          emailVerified: session.user.emailVerified,
         }}
         initialProfile={initialProfile}
       />

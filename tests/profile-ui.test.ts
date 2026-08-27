@@ -31,7 +31,7 @@ async function cleanup() {
   }
 }
 
-test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => {
+test("Step 2.4 — Candidate Profile Completion & Truthfulness UX Suite", async (t) => {
   await t.test("Setup: Sign up User 1 and User 2", async () => {
     // User 1
     const res1 = await fetch(`${BASE_URL}/api/auth/sign-up/email`, {
@@ -88,7 +88,7 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.equal(trpcRes.status, 401, "Direct tRPC call without session must be 401");
   });
 
-  // 2. Authenticated user with no profile sees creation state
+  // 2. Authenticated user with no profile sees creation state (STATE A) & completion indicator
   await t.test("2. Authenticated user with no profile sees creation state (STATE A)", async () => {
     const res = await fetch(`${BASE_URL}/profile`, {
       headers: { Cookie: cookieUser1 },
@@ -99,6 +99,8 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.ok(html.includes("No Candidate Profile Initialized"), "Must indicate profile not initialized");
     assert.ok(html.includes("Initialize Candidate Profile"), "Must provide Initialize button");
     assert.ok(html.includes(testEmail1), "Must display authenticated user email");
+    assert.ok(html.includes("Action Required: Not Initialized"), "Completion status indicates action required");
+    assert.ok(html.includes("Foundational Profile Completion"), "Profile completion card is present");
   });
 
   // 3. User can create a profile via tRPC
@@ -130,7 +132,7 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.equal(row.userId, user1Id);
   });
 
-  // 5. Existing profile data is displayed (STATE B)
+  // 5. Existing profile data is displayed (STATE B) with Profile Initialized status
   await t.test("5. Existing profile data is displayed on /profile (STATE B)", async () => {
     const res = await fetch(`${BASE_URL}/profile`, {
       headers: { Cookie: cookieUser1 },
@@ -138,14 +140,39 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.equal(res.status, 200);
     const html = await res.text();
     assert.ok(html.includes("Profile Active"), "Must display Profile Active badge");
+    assert.ok(html.includes("Profile Initialized"), "Completion card shows Profile Initialized badge");
     assert.ok(html.includes(createdProfileId), "Must display candidate profile ID");
     assert.ok(html.includes("Save / Update Profile"), "Must show update action");
     assert.ok(!html.includes("No Candidate Profile Initialized"), "Must no longer show empty state");
   });
 
-  // 6. User can edit / update an existing profile
+  // 6. Truthfulness audit section displays correct truthful classifications
+  await t.test("6. Truthfulness audit table displays honest classifications", async () => {
+    const res = await fetch(`${BASE_URL}/profile`, {
+      headers: { Cookie: cookieUser1 },
+    });
+    assert.equal(res.status, 200);
+    const html = await res.text();
+    assert.ok(html.includes("Data Truthfulness &amp; Verification Audit") || html.includes("Data Truthfulness & Verification Audit"));
+    assert.ok(html.includes("USER_PROVIDED"), "Candidate Name must be classified as USER_PROVIDED");
+    assert.ok(html.includes("Registration Form Input (Unverified)"), "Unverified source must be stated");
+    assert.ok(html.includes("0 Inferred Facts"), "AI inference count must be honestly reported as 0");
+    assert.ok(html.includes("Deterministic Engine (No AI Inference)"), "Deterministic nature must be declared");
+  });
+
+  // 7. No unsupported "verified" claims appear
+  await t.test("7. No unsupported verified claim for user name", async () => {
+    const res = await fetch(`${BASE_URL}/profile`, {
+      headers: { Cookie: cookieUser1 },
+    });
+    const html = await res.text();
+    // Candidate Name must have User-Provided badge, not Verified
+    assert.ok(html.includes("User-Provided"), "Candidate Name must be marked User-Provided");
+  });
+
+  // 8. User can edit / update an existing profile
   let updatedTimestamp: string = "";
-  await t.test("6. User can update an existing profile", async () => {
+  await t.test("8. User can update an existing profile", async () => {
     await new Promise((r) => setTimeout(r, 50));
     const res = await fetch(`${BASE_URL}/api/trpc/candidate.updateProfile`, {
       method: "POST",
@@ -162,8 +189,8 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.ok(updatedTimestamp, "Must return bumped updatedAt timestamp");
   });
 
-  // 7. Updated values persist after reload
-  await t.test("7. Updated values persist in PostgreSQL after reload", async () => {
+  // 9. Updated values persist after reload
+  await t.test("9. Updated values persist in PostgreSQL after reload", async () => {
     const [row] = await db
       .select()
       .from(candidateProfiles)
@@ -173,8 +200,8 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.ok(row.updatedAt.getTime() >= new Date(updatedTimestamp).getTime() - 1000);
   });
 
-  // 8. Invalid input is rejected
-  await t.test("8. Invalid input containing disallowed fields is rejected", async () => {
+  // 10. Invalid input is rejected
+  await t.test("10. Invalid input containing disallowed fields is rejected", async () => {
     const res = await fetch(`${BASE_URL}/api/trpc/candidate.createProfile`, {
       method: "POST",
       headers: {
@@ -188,8 +215,8 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.equal(json.error?.data?.code, "BAD_REQUEST");
   });
 
-  // 9. Saving state & duplicate creation protection
-  await t.test("9. Duplicate creation returns 409 CONFLICT", async () => {
+  // 11. Saving state & duplicate creation protection
+  await t.test("11. Duplicate creation returns 409 CONFLICT", async () => {
     const res = await fetch(`${BASE_URL}/api/trpc/candidate.createProfile`, {
       method: "POST",
       headers: {
@@ -203,8 +230,8 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.equal(json.error?.data?.code, "CONFLICT");
   });
 
-  // 10. Server / API errors are presented safely without leaks
-  await t.test("10. Server errors are sanitized without SQL or stack traces", async () => {
+  // 12. Server / API errors are presented safely without leaks
+  await t.test("12. Server errors are sanitized without SQL or stack traces", async () => {
     const res = await fetch(`${BASE_URL}/api/trpc/candidate.createProfile`, {
       method: "POST",
       headers: {
@@ -218,8 +245,8 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.ok(!text.toLowerCase().includes("password"), "Must not leak credentials");
   });
 
-  // 11. Cross-user isolation: User 2 cannot access User 1 profile
-  await t.test("11. Cross-user isolation: User 2 sees uninitialized profile", async () => {
+  // 13. Cross-user isolation: User 2 cannot access User 1 profile
+  await t.test("13. Cross-user isolation: User 2 sees uninitialized profile & USER_REQUIRED", async () => {
     const res = await fetch(`${BASE_URL}/profile`, {
       headers: { Cookie: cookieUser2 },
     });
@@ -228,10 +255,11 @@ test("Step 2.3 — Candidate Profile UI & tRPC Integration Suite", async (t) => 
     assert.ok(html.includes(testEmail2), "User 2 sees their own email");
     assert.ok(!html.includes(createdProfileId), "User 2 must NOT see User 1's profile ID");
     assert.ok(html.includes("No Candidate Profile Initialized"), "User 2 must see empty creation state");
+    assert.ok(html.includes("Action Required: Not Initialized"), "User 2 completion badge indicates uninitialized");
   });
 
-  // 12. No userId ownership injection is possible
-  await t.test("12. Client-supplied userId injection is strictly rejected", async () => {
+  // 14. No userId ownership injection is possible
+  await t.test("14. Client-supplied userId injection is strictly rejected", async () => {
     // Client-side schema rejection
     const createValidation = createProfileInputSchema.safeParse({ userId: "injected_user_id" });
     assert.equal(createValidation.success, false, "Client schema must reject userId");
