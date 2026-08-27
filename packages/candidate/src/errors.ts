@@ -36,3 +36,14 @@ export class ResumeForbiddenError extends Error {
     this.name = "ResumeForbiddenError";
   }
 }
+
+export class ResumeValidationError extends Error {
+  constructor(message = "Resume validation failed") {
+    super(message);
+    this.name = "ResumeValidationError";
+  }
+}
+
+export { AiProviderError, AiValidationError, AiTimeoutError } from "@job-hub/ai";
+
+

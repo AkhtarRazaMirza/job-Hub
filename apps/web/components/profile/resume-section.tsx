@@ -23,6 +23,7 @@ import {
   Info,
   Calendar,
   HardDrive,
+  Sparkles,
 } from "lucide-react";
 
 export type ResumeItem = Omit<ResumeMetadata, "createdAt" | "updatedAt" | "extractedAt"> & {
@@ -33,6 +34,8 @@ export type ResumeItem = Omit<ResumeMetadata, "createdAt" | "updatedAt" | "extra
 
 export interface ResumeSectionProps {
   initialResumes?: ResumeItem[];
+  activeSourceResumeId?: string | null;
+  onProfileGenerated?: (profile: unknown) => void;
 }
 
 function normalizeResume(item: ResumeItem): ResumeMetadata {
@@ -49,13 +52,18 @@ function normalizeResume(item: ResumeItem): ResumeMetadata {
   };
 }
 
-export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
+export function ResumeSection({
+  initialResumes = [],
+  activeSourceResumeId,
+  onProfileGenerated,
+}: ResumeSectionProps) {
   const [resumes, setResumes] = useState<ResumeMetadata[]>(() =>
     initialResumes.map(normalizeResume)
   );
   const [isUploading, setIsUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [extractingId, setExtractingId] = useState<string | null>(null);
+  const [profilingId, setProfilingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     title: string;
@@ -63,6 +71,34 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
   } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleProfile(resumeId: string, fileName: string) {
+    setProfilingId(resumeId);
+    setFeedback(null);
+
+    try {
+      const updatedProfile = await trpcClient.candidate.profileFromResume.mutate({ resumeId });
+      onProfileGenerated?.(updatedProfile);
+      setFeedback({
+        type: "success",
+        title: "Candidate Profile Generated",
+        message: `AI structured extraction completed for "${fileName}". View your profile below.`,
+      });
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === "object" && "message" in err && typeof (err as { message: unknown }).message === "string"
+          ? (err as { message: string }).message
+          : "Failed to generate candidate profile. Please try again.";
+
+      setFeedback({
+        type: "error",
+        title: "Profiling Error",
+        message,
+      });
+    } finally {
+      setProfilingId(null);
+    }
+  }
 
   async function handleExtract(id: string, fileName: string) {
     setExtractingId(id);
@@ -349,6 +385,15 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
                             <span className="text-primary font-medium">Text Extracted</span>
                           </>
                         )}
+                        {activeSourceResumeId === resume.id && (
+                          <>
+                            <span>•</span>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" />
+                              Active Profile Source
+                            </span>
+                          </>
+                        )}
                       </div>
                       {resume.status === "FAILED" && resume.processingError && (
                         <p className="text-xs text-destructive mt-1">
@@ -377,7 +422,7 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={extractingId === resume.id || deletingId === resume.id}
+                        disabled={extractingId === resume.id || deletingId === resume.id || profilingId === resume.id}
                         onClick={() => handleExtract(resume.id, resume.fileName)}
                         className="h-8 px-2 text-xs"
                         aria-label={`Extract text from ${resume.fileName}`}
@@ -389,6 +434,30 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
                           </>
                         ) : (
                           <span>Extract Text</span>
+                        )}
+                      </Button>
+                    )}
+
+                    {resume.status === "PROCESSED" && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={profilingId === resume.id || deletingId === resume.id || extractingId === resume.id}
+                        onClick={() => handleProfile(resume.id, resume.fileName)}
+                        className="h-8 px-2.5 text-xs border-primary/40 text-primary hover:bg-primary/5 gap-1.5"
+                        aria-label={`Profile candidate from ${resume.fileName}`}
+                      >
+                        {profilingId === resume.id ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                            <span>Profiling...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-3 w-3" aria-hidden="true" />
+                            <span>Profile with AI</span>
+                          </>
                         )}
                       </Button>
                     )}

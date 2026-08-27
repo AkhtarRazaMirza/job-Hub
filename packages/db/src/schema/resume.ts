@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, integer, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, integer, index, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { candidateProfiles } from "./candidate";
 
 /**
@@ -16,7 +16,7 @@ export const resumes = pgTable(
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     candidateProfileId: text("candidate_profile_id")
       .notNull()
-      .references(() => candidateProfiles.id, { onDelete: "cascade" }),
+      .references((): AnyPgColumn => candidateProfiles.id, { onDelete: "cascade" }),
     fileName: text("file_name").notNull(),
     storageKey: text("storage_key").notNull().unique(),
     mimeType: text("mime_type").notNull(),

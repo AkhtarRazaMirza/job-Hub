@@ -39,6 +39,8 @@ export interface CandidateFact<T> {
   source?: string;
 }
 
+import type { StructuredCandidateProfile } from "./profiler-schema";
+
 /**
  * Core candidate profile domain identity.
  * Represents the candidate entity referencing an authenticated user (1:1).
@@ -46,6 +48,10 @@ export interface CandidateFact<T> {
 export interface CandidateProfile {
   id: string;
   userId: string;
+  headline?: string | null;
+  profileData?: StructuredCandidateProfile | null;
+  sourceResumeId?: string | null;
+  profiledAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -73,4 +79,13 @@ export interface CandidateProfileRepository {
   findByUserId(userId: string): Promise<CandidateProfile | null>;
   create(input: CreateCandidateProfileInput): Promise<CandidateProfile>;
   update(userId: string, input?: UpdateCandidateProfileInput): Promise<CandidateProfile>;
+  updateStructuredProfile(
+    id: string,
+    input: {
+      headline?: string | null;
+      profileData: StructuredCandidateProfile;
+      sourceResumeId: string;
+      profiledAt: Date;
+    }
+  ): Promise<CandidateProfile>;
 }

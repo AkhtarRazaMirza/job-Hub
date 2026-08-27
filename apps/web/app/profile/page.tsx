@@ -65,12 +65,19 @@ export default async function ProfilePage() {
     );
   }
 
-  // Preload initial profile and resumes through server tRPC caller
+  // Preload initial profile, resumes, preferences, and verified projects through server tRPC caller
   const caller = createCaller(await createTRPCContext({ headers: reqHeaders }));
   const [initialProfile, initialResumes] = await Promise.all([
     caller.candidate.getProfile(),
     caller.resume.list(),
   ]);
+
+  const [initialPreferences, initialProjects] = initialProfile
+    ? await Promise.all([
+        caller.candidate.getPreferences().catch(() => null),
+        caller.candidate.listProjects().catch(() => []),
+      ])
+    : [null, []];
 
   return (
     <main className="container mx-auto max-w-3xl px-4 py-8 sm:py-12">
@@ -97,6 +104,8 @@ export default async function ProfilePage() {
         }}
         initialProfile={initialProfile}
         initialResumes={initialResumes}
+        initialPreferences={initialPreferences}
+        initialProjects={initialProjects}
       />
     </main>
   );

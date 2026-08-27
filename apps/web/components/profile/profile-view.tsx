@@ -14,10 +14,15 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { trpcClient } from "@/lib/trpc/client";
 import { ResumeSection, type ResumeItem } from "./resume-section";
+import { StructuredProfileSection } from "./structured-profile-section";
+import { PreferencesSection } from "./preferences-section";
+import { ProjectsSection, type ProjectItem } from "./projects-section";
 import {
   createProfileInputSchema,
   updateProfileInputSchema,
   type CandidateProfile,
+  type StructuredCandidateProfile,
+  type CandidatePreferences,
   type VerificationStatus,
 } from "@job-hub/candidate";
 import {
@@ -47,6 +52,10 @@ export interface ProfileUser {
 export type CandidateProfileData = {
   id: string;
   userId: string;
+  headline?: string | null;
+  profileData?: StructuredCandidateProfile | null;
+  sourceResumeId?: string | null;
+  profiledAt?: Date | string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
 };
@@ -55,6 +64,8 @@ interface ProfileViewProps {
   user: ProfileUser;
   initialProfile: CandidateProfileData | null;
   initialResumes?: ResumeItem[];
+  initialPreferences?: CandidatePreferences | null;
+  initialProjects?: ProjectItem[];
 }
 
 function normalizeProfile(raw: CandidateProfileData | null): CandidateProfile | null {
@@ -62,14 +73,32 @@ function normalizeProfile(raw: CandidateProfileData | null): CandidateProfile | 
   return {
     id: raw.id,
     userId: raw.userId,
+    headline: raw.headline ?? null,
+    profileData: raw.profileData ?? null,
+    sourceResumeId: raw.sourceResumeId ?? null,
+    profiledAt:
+      raw.profiledAt instanceof Date
+        ? raw.profiledAt
+        : raw.profiledAt
+        ? new Date(raw.profiledAt)
+        : null,
     createdAt: raw.createdAt instanceof Date ? raw.createdAt : new Date(raw.createdAt),
     updatedAt: raw.updatedAt instanceof Date ? raw.updatedAt : new Date(raw.updatedAt),
   };
 }
 
-export function ProfileView({ user, initialProfile, initialResumes = [] }: ProfileViewProps) {
+export function ProfileView({
+  user,
+  initialProfile,
+  initialResumes = [],
+  initialPreferences = null,
+  initialProjects = [],
+}: ProfileViewProps) {
   const [profile, setProfile] = useState<CandidateProfile | null>(() =>
     normalizeProfile(initialProfile)
+  );
+  const [preferences, setPreferences] = useState<CandidatePreferences | null>(
+    () => initialPreferences
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -617,7 +646,48 @@ export function ProfileView({ user, initialProfile, initialResumes = [] }: Profi
       </Card>
 
       {/* 3. Resume Documents & Ingestion Section */}
-      <ResumeSection initialResumes={initialResumes} />
+      <ResumeSection
+        initialResumes={initialResumes}
+        activeSourceResumeId={profile?.sourceResumeId}
+        onProfileGenerated={(updated) =>
+          setProfile(normalizeProfile(updated as CandidateProfileData))
+        }
+      />
+
+      {/* 4. AI-Structured Candidate Profile (Step 2.7 / 2.8) */}
+      {profile?.profileData && (
+        <StructuredProfileSection
+          profileData={profile.profileData}
+          headline={profile.headline}
+          profiledAt={profile.profiledAt}
+        />
+      )}
+
+      {/* 5. Candidate Job Preferences (Step 2.8) */}
+      {profile && (
+        <PreferencesSection
+          initialPreferences={
+            preferences ?? {
+              id: "",
+              candidateProfileId: profile.id,
+              remotePreference: "UNKNOWN",
+              preferredLocations: [],
+              salaryMin: null,
+              salaryCurrency: "USD",
+              targetRoles: [],
+              experienceLevel: "MID",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }
+          }
+          onUpdated={setPreferences}
+        />
+      )}
+
+      {/* 6. Verified Projects Section (Step 2.9) */}
+      {profile && (
+        <ProjectsSection initialProjects={initialProjects} />
+      )}
     </div>
   );
 }
