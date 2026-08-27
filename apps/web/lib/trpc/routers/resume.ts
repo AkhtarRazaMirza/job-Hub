@@ -98,4 +98,30 @@ export const resumeRouter = router({
         });
       }
     }),
+
+  /**
+   * Triggers deterministic text extraction for a resume.
+   * Enforces server-derived candidate ownership.
+   */
+  extractText: protectedProcedure
+    .input(getResumeInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await resumeService.extractResume(ctx.user.id, input.id);
+      } catch (error) {
+        if (error instanceof ResumeNotFoundError) {
+          throw new TRPCError({ code: "NOT_FOUND", message: error.message });
+        }
+        if (error instanceof ResumeForbiddenError) {
+          throw new TRPCError({ code: "FORBIDDEN", message: error.message });
+        }
+        if (error instanceof Error) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to extract resume text",
+        });
+      }
+    }),
 });

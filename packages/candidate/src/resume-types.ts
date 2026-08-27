@@ -18,6 +18,9 @@ export interface Resume {
   fileSize: number;
   fileHash: string | null;
   status: ResumeProcessingStatus;
+  extractedText: string | null;
+  extractedAt: Date | null;
+  processingError: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +33,8 @@ export interface ResumeMetadata {
   fileSize: number;
   fileHash: string | null;
   status: ResumeProcessingStatus;
+  extractedAt?: Date | null;
+  processingError?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,4 +48,14 @@ export interface CreateResumeRecordInput {
   fileSize: number;
   fileHash?: string | null;
   status?: ResumeProcessingStatus;
+  extractedText?: string | null;
+  extractedAt?: Date | null;
+  processingError?: string | null;
+}
+
+export interface UpdateResumeExtractionInput {
+  status: ResumeProcessingStatus;
+  extractedText?: string | null;
+  extractedAt?: Date | null;
+  processingError?: string | null;
 }

@@ -25,9 +25,10 @@ import {
   HardDrive,
 } from "lucide-react";
 
-export type ResumeItem = Omit<ResumeMetadata, "createdAt" | "updatedAt"> & {
+export type ResumeItem = Omit<ResumeMetadata, "createdAt" | "updatedAt" | "extractedAt"> & {
   createdAt: Date | string;
   updatedAt: Date | string;
+  extractedAt?: Date | string | null;
 };
 
 export interface ResumeSectionProps {
@@ -39,6 +40,12 @@ function normalizeResume(item: ResumeItem): ResumeMetadata {
     ...item,
     createdAt: item.createdAt instanceof Date ? item.createdAt : new Date(item.createdAt),
     updatedAt: item.updatedAt instanceof Date ? item.updatedAt : new Date(item.updatedAt),
+    extractedAt:
+      item.extractedAt instanceof Date
+        ? item.extractedAt
+        : item.extractedAt
+        ? new Date(item.extractedAt)
+        : null,
   };
 }
 
@@ -48,6 +55,7 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
   );
   const [isUploading, setIsUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [extractingId, setExtractingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     title: string;
@@ -55,6 +63,42 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
   } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleExtract(id: string, fileName: string) {
+    setExtractingId(id);
+    setFeedback(null);
+
+    try {
+      const processed = await trpcClient.resume.extractText.mutate({ id });
+      setResumes((prev) => prev.map((r) => (r.id === id ? normalizeResume(processed) : r)));
+      if (processed.status === "PROCESSED") {
+        setFeedback({
+          type: "success",
+          title: "Text Extracted",
+          message: `Deterministic text extraction succeeded for "${fileName}". Resume text is ready for profiling.`,
+        });
+      } else {
+        setFeedback({
+          type: "error",
+          title: "Extraction Failed",
+          message: processed.processingError || "Failed to extract text from document.",
+        });
+      }
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === "object" && "message" in err && typeof (err as { message: unknown }).message === "string"
+          ? (err as { message: string }).message
+          : "Failed to extract text from resume. Please try again.";
+
+      setFeedback({
+        type: "error",
+        title: "Extraction Error",
+        message,
+      });
+    } finally {
+      setExtractingId(null);
+    }
+  }
 
   function formatBytes(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
@@ -263,7 +307,7 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
           <Info className="h-4 w-4 shrink-0 text-muted-foreground/80 mt-0.5" aria-hidden="true" />
           <div>
             <span className="font-medium text-foreground">Truthfulness Notice: </span>
-            Uploading a resume stores the raw document and establishes its storage record. It does not imply the resume is verified, parsed, or tailored. Parsing and AI structured extraction will take place in subsequent processing stages.
+            Deterministic document text extraction extracts raw plain text from stored PDF and DOCX files. It confirms only: <span className="font-medium text-foreground">&quot;Resume text extracted.&quot;</span> It does <strong>NOT</strong> mean: &quot;Resume verified&quot;, &quot;Resume analyzed by AI&quot;, &quot;Skills verified&quot;, or &quot;Resume is accurate&quot;. This step is deterministic extraction only.
           </div>
         </div>
 
@@ -299,19 +343,61 @@ export function ResumeSection({ initialResumes = [] }: ResumeSectionProps) {
                           <Calendar className="h-3 w-3" aria-hidden="true" />
                           <span>{formatDate(resume.createdAt)}</span>
                         </span>
+                        {resume.extractedAt && (
+                          <>
+                            <span>•</span>
+                            <span className="text-primary font-medium">Text Extracted</span>
+                          </>
+                        )}
                       </div>
+                      {resume.status === "FAILED" && resume.processingError && (
+                        <p className="text-xs text-destructive mt-1">
+                          Extraction error: {resume.processingError}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 self-end sm:self-center">
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge
+                      variant={
+                        resume.status === "PROCESSED"
+                          ? "outline"
+                          : resume.status === "FAILED"
+                          ? "destructive"
+                          : "secondary"
+                      }
+                      className="text-[10px]"
+                    >
                       {resume.status}
                     </Badge>
+
+                    {resume.status !== "PROCESSED" && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={extractingId === resume.id || deletingId === resume.id}
+                        onClick={() => handleExtract(resume.id, resume.fileName)}
+                        className="h-8 px-2 text-xs"
+                        aria-label={`Extract text from ${resume.fileName}`}
+                      >
+                        {extractingId === resume.id ? (
+                          <>
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" aria-hidden="true" />
+                            <span>Extracting...</span>
+                          </>
+                        ) : (
+                          <span>Extract Text</span>
+                        )}
+                      </Button>
+                    )}
+
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      disabled={deletingId === resume.id || isUploading}
+                      disabled={deletingId === resume.id || isUploading || extractingId === resume.id}
                       onClick={() => handleDelete(resume.id, resume.fileName)}
                       className="h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                       aria-label={`Delete ${resume.fileName}`}

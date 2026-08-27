@@ -23,6 +23,9 @@ export const resumes = pgTable(
     fileSize: integer("file_size").notNull(),
     fileHash: text("file_hash"),
     status: text("status").notNull().default("UPLOADED"),
+    extractedText: text("extracted_text"),
+    extractedAt: timestamp("extracted_at", { withTimezone: true }),
+    processingError: text("processing_error"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()

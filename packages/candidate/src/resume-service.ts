@@ -6,11 +6,17 @@ import { validateResumeFile } from "./resume-validation";
 import { ResumeNotFoundError, ResumeForbiddenError } from "./errors";
 
 export class ResumeService {
+  private readonly extractionService: ResumeExtractionService;
+
   constructor(
     private readonly resumeRepository: ResumeRepository,
     private readonly candidateProfileRepository: CandidateProfileRepository,
-    private readonly storageProvider: StorageProvider
-  ) {}
+    private readonly storageProvider: StorageProvider,
+    extractionService?: ResumeExtractionService
+  ) {
+    this.extractionService =
+      extractionService ?? new ResumeExtractionService(resumeRepository, storageProvider);
+  }
 
   /**
    * Securely uploads and registers a candidate resume.
@@ -119,6 +125,25 @@ export class ResumeService {
     await this.resumeRepository.delete(resumeId);
   }
 
+  /**
+   * Triggers deterministic text extraction for a candidate resume with strict ownership verification.
+   */
+  async extractResume(userId: string, resumeId: string): Promise<ResumeMetadata> {
+    const profile = await this.candidateProfileRepository.findByUserId(userId);
+    const resume = await this.resumeRepository.findById(resumeId);
+
+    if (!resume) {
+      throw new ResumeNotFoundError();
+    }
+
+    if (!profile || resume.candidateProfileId !== profile.id) {
+      throw new ResumeForbiddenError("You do not have permission to process this resume.");
+    }
+
+    const processed = await this.extractionService.extractResumeText(resumeId);
+    return this.toMetadata(processed);
+  }
+
   private toMetadata(resume: {
     id: string;
     candidateProfileId: string;
@@ -127,6 +152,9 @@ export class ResumeService {
     fileSize: number;
     fileHash: string | null;
     status: "UPLOADED" | "PROCESSING" | "PROCESSED" | "FAILED";
+    extractedText?: string | null;
+    extractedAt?: Date | null;
+    processingError?: string | null;
     createdAt: Date;
     updatedAt: Date;
   }): ResumeMetadata {
@@ -138,6 +166,8 @@ export class ResumeService {
       fileSize: resume.fileSize,
       fileHash: resume.fileHash,
       status: resume.status,
+      extractedAt: resume.extractedAt ?? null,
+      processingError: resume.processingError ?? null,
       createdAt: resume.createdAt,
       updatedAt: resume.updatedAt,
     };
@@ -147,9 +177,12 @@ export class ResumeService {
 import { DrizzleResumeRepository } from "./resume-repository";
 import { DrizzleCandidateProfileRepository } from "./repository";
 import { storage } from "@job-hub/storage";
+import { ResumeExtractionService } from "./resume-extraction-service";
 
+const defaultRepository = new DrizzleResumeRepository();
 export const resumeService = new ResumeService(
-  new DrizzleResumeRepository(),
+  defaultRepository,
   new DrizzleCandidateProfileRepository(),
-  storage
+  storage,
+  new ResumeExtractionService(defaultRepository, storage)
 );

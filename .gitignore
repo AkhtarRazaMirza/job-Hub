@@ -36,6 +36,7 @@ test-results/
 .cache/
 .temp/
 .inngest/
+.storage/
 
 # IDE & Editor Files
 .idea/

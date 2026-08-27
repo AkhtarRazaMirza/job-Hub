@@ -8,6 +8,12 @@ export interface ResumeRepository {
   create(input: CreateResumeRecordInput): Promise<Resume>;
   delete(id: string): Promise<void>;
   updateStatus(id: string, status: ResumeProcessingStatus): Promise<Resume | null>;
+  updateExtractionResult(id: string, input: {
+    status: ResumeProcessingStatus;
+    extractedText?: string | null;
+    extractedAt?: Date | null;
+    processingError?: string | null;
+  }): Promise<Resume | null>;
 }
 
 export class DrizzleResumeRepository implements ResumeRepository {
@@ -44,6 +50,9 @@ export class DrizzleResumeRepository implements ResumeRepository {
         fileSize: input.fileSize,
         fileHash: input.fileHash ?? null,
         status: input.status ?? "UPLOADED",
+        extractedText: input.extractedText ?? null,
+        extractedAt: input.extractedAt ?? null,
+        processingError: input.processingError ?? null,
       })
       .returning();
 
@@ -69,6 +78,28 @@ export class DrizzleResumeRepository implements ResumeRepository {
     return this.mapToDomain(row);
   }
 
+  async updateExtractionResult(id: string, input: {
+    status: ResumeProcessingStatus;
+    extractedText?: string | null;
+    extractedAt?: Date | null;
+    processingError?: string | null;
+  }): Promise<Resume | null> {
+    const [row] = await db
+      .update(resumes)
+      .set({
+        status: input.status,
+        extractedText: input.extractedText !== undefined ? input.extractedText : null,
+        extractedAt: input.extractedAt !== undefined ? input.extractedAt : null,
+        processingError: input.processingError !== undefined ? input.processingError : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(resumes.id, id))
+      .returning();
+
+    if (!row) return null;
+    return this.mapToDomain(row);
+  }
+
   private mapToDomain(row: typeof resumes.$inferSelect): Resume {
     return {
       id: row.id,
@@ -79,6 +110,9 @@ export class DrizzleResumeRepository implements ResumeRepository {
       fileSize: row.fileSize,
       fileHash: row.fileHash,
       status: row.status as ResumeProcessingStatus,
+      extractedText: row.extractedText ?? null,
+      extractedAt: row.extractedAt ?? null,
+      processingError: row.processingError ?? null,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
