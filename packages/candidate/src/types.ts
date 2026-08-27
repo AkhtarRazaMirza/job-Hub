@@ -59,6 +59,12 @@ export interface CreateCandidateProfileInput {
 }
 
 /**
+ * Input for updating a candidate profile.
+ * Note: userId can NEVER be updated.
+ */
+export type UpdateCandidateProfileInput = Record<string, unknown>;
+
+/**
  * Repository interface defining candidate profile storage contracts.
  * Decouples candidate domain logic from database infrastructure.
  */
@@ -66,4 +72,5 @@ export interface CandidateProfileRepository {
   findById(id: string): Promise<CandidateProfile | null>;
   findByUserId(userId: string): Promise<CandidateProfile | null>;
   create(input: CreateCandidateProfileInput): Promise<CandidateProfile>;
+  update(userId: string, input?: UpdateCandidateProfileInput): Promise<CandidateProfile>;
 }

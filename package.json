@@ -6,7 +6,8 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "check-types": "turbo check-types"
+    "check-types": "turbo check-types",
+    "test": "./apps/web/node_modules/.bin/jiti tests/candidate-persistence.test.ts && ./apps/web/node_modules/.bin/jiti tests/e2e-api.test.ts"
   },
   "devDependencies": {
     "turbo": "^2.4.4"

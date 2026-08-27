@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@job-hub/auth": "workspace:*",
+    "@job-hub/candidate": "workspace:*",
     "@job-hub/db": "workspace:*",
     "@radix-ui/react-slot": "^1.1.2",
+    "@trpc/server": "^11.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.34.0",
