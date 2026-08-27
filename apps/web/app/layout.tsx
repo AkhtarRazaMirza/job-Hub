@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,8 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-background font-sans antialiased">
-        {children}
+      <body className="min-h-screen bg-background font-sans antialiased flex flex-col">
+        <SiteHeader />
+        <div className="flex-1">{children}</div>
       </body>
     </html>
   );
