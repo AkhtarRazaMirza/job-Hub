@@ -65,9 +65,12 @@ export default async function ProfilePage() {
     );
   }
 
-  // Preload initial profile through server tRPC caller
+  // Preload initial profile and resumes through server tRPC caller
   const caller = createCaller(await createTRPCContext({ headers: reqHeaders }));
-  const initialProfile = await caller.candidate.getProfile();
+  const [initialProfile, initialResumes] = await Promise.all([
+    caller.candidate.getProfile(),
+    caller.resume.list(),
+  ]);
 
   return (
     <main className="container mx-auto max-w-3xl px-4 py-8 sm:py-12">
@@ -93,6 +96,7 @@ export default async function ProfilePage() {
           emailVerified: session.user.emailVerified,
         }}
         initialProfile={initialProfile}
+        initialResumes={initialResumes}
       />
     </main>
   );

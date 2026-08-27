@@ -22,3 +22,17 @@ export class CandidateProfileValidationError extends Error {
     this.name = "CandidateProfileValidationError";
   }
 }
+
+export class ResumeNotFoundError extends Error {
+  constructor(message = "Resume not found") {
+    super(message);
+    this.name = "ResumeNotFoundError";
+  }
+}
+
+export class ResumeForbiddenError extends Error {
+  constructor(message = "You do not have permission to access this resume") {
+    super(message);
+    this.name = "ResumeForbiddenError";
+  }
+}

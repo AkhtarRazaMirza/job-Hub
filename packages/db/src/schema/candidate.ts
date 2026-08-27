@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, index } from "drizzle-orm/pg-core";
 import { user } from "./auth";
+import { resumes } from "./resume";
 
 export const candidateProfiles = pgTable(
   "candidate_profiles",
@@ -21,9 +22,10 @@ export const candidateProfiles = pgTable(
   ],
 );
 
-export const candidateProfilesRelations = relations(candidateProfiles, ({ one }) => ({
+export const candidateProfilesRelations = relations(candidateProfiles, ({ one, many }) => ({
   user: one(user, {
     fields: [candidateProfiles.userId],
     references: [user.id],
   }),
+  resumes: many(resumes),
 }));

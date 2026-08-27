@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { trpcClient } from "@/lib/trpc/client";
+import { ResumeSection, type ResumeItem } from "./resume-section";
 import {
   createProfileInputSchema,
   updateProfileInputSchema,
@@ -53,6 +54,7 @@ export type CandidateProfileData = {
 interface ProfileViewProps {
   user: ProfileUser;
   initialProfile: CandidateProfileData | null;
+  initialResumes?: ResumeItem[];
 }
 
 function normalizeProfile(raw: CandidateProfileData | null): CandidateProfile | null {
@@ -65,7 +67,7 @@ function normalizeProfile(raw: CandidateProfileData | null): CandidateProfile | 
   };
 }
 
-export function ProfileView({ user, initialProfile }: ProfileViewProps) {
+export function ProfileView({ user, initialProfile, initialResumes = [] }: ProfileViewProps) {
   const [profile, setProfile] = useState<CandidateProfile | null>(() =>
     normalizeProfile(initialProfile)
   );
@@ -613,6 +615,9 @@ export function ProfileView({ user, initialProfile }: ProfileViewProps) {
           </div>
         </CardFooter>
       </Card>
+
+      {/* 3. Resume Documents & Ingestion Section */}
+      <ResumeSection initialResumes={initialResumes} />
     </div>
   );
 }
