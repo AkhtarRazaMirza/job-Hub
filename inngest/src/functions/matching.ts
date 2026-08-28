@@ -33,6 +33,8 @@ import {
   calculateMatchScores,
   MatchExplainer,
   DEFAULT_SCORING_WEIGHTS,
+  buildCandidateMatchData,
+  buildJobMatchData,
 } from "@job-hub/matching";
 import {
   jobMatchRepository as defaultJobMatchRepository,
@@ -102,71 +104,7 @@ export function createMatchCandidateJobFunction(deps?: MatchingWorkflowDependenc
         const preferences = await candidatePreferencesRepo.findByProfileId(candidateProfileId);
         const projects = await projectsRepo.findByProfileId(candidateProfileId);
 
-        const profileData = (profile.profileData as Record<string, unknown> | null) ?? {};
-
-        // Extract skills
-        const rawTechnicalSkills = Array.isArray(profileData.technicalSkills)
-          ? (profileData.technicalSkills as Array<{ name?: string }>)
-          : [];
-        const skillsFromProfile = rawTechnicalSkills
-          .map((s) => s?.name)
-          .filter((name): name is string => typeof name === "string" && name.length > 0);
-
-        const technologies = Array.isArray(profileData.technologies)
-          ? (profileData.technologies as string[])
-          : [];
-        const combinedSkills = Array.from(new Set([...skillsFromProfile, ...technologies]));
-
-        // Extract education
-        const rawEducation = Array.isArray(profileData.education)
-          ? (profileData.education as Array<{
-              degree?: string;
-              fieldOfStudy?: string;
-              institution?: string;
-            }>)
-          : [];
-        const education = rawEducation.map((e) => ({
-          degree: e.degree,
-          fieldOfStudy: e.fieldOfStudy,
-          institution: e.institution,
-        }));
-
-        // Extract projects
-        const projectList = (projects ?? []).map((p) => ({
-          name: p.name,
-          technologies: p.technologies,
-          description: p.description ?? undefined,
-        }));
-
-        // Location preferences
-        const locPrefs = (profileData.locationPreferences as Record<string, unknown> | null) ?? {};
-        const remotePref =
-          preferences?.remotePreference ??
-          (typeof locPrefs.remotePreference === "string" ? locPrefs.remotePreference : "UNKNOWN");
-        const explicitLocs = Array.isArray(locPrefs.explicitLocations)
-          ? (locPrefs.explicitLocations as string[])
-          : [];
-        const preferredLocs =
-          preferences?.preferredLocations && preferences.preferredLocations.length > 0
-            ? preferences.preferredLocations
-            : explicitLocs;
-
-        const candidateMatchData: CandidateMatchData = {
-          candidateProfileId: profile.id,
-          headline: profile.headline,
-          skills: combinedSkills,
-          experienceLevel: preferences?.experienceLevel ?? (typeof profileData.experienceLevel === "string" ? profileData.experienceLevel : "MID"),
-          yearsOfExperience: typeof profileData.yearsOfExperience === "number" ? profileData.yearsOfExperience : undefined,
-          remotePreference: remotePref,
-          preferredLocations: preferredLocs,
-          salaryMin: preferences?.salaryMin ?? null,
-          salaryCurrency: preferences?.salaryCurrency ?? "USD",
-          projects: projectList,
-          education,
-          targetRoles: preferences?.targetRoles ?? (Array.isArray(profileData.rolePreferences) ? (profileData.rolePreferences as string[]) : []),
-        };
-
-        return candidateMatchData;
+        return buildCandidateMatchData(profile, preferences, projects);
       });
 
       // -----------------------------------------------------------------------
@@ -178,26 +116,7 @@ export function createMatchCandidateJobFunction(deps?: MatchingWorkflowDependenc
           throw new NonRetriableError(`Job with ID "${jobId}" was not found.`);
         }
 
-        const jobMatchData: JobMatchData = {
-          id: job.id,
-          title: job.title,
-          company: job.company,
-          description: job.description,
-          location: job.location,
-          remoteType: job.remoteType,
-          allowedCountries: job.allowedCountries,
-          skills: job.skills,
-          requirements: job.requirements,
-          experience: job.experience,
-          salary: job.salary,
-          salaryMin: job.salaryMin,
-          salaryMax: job.salaryMax,
-          currency: job.currency,
-          status: job.status,
-          postedAt: job.postedAt ? (job.postedAt instanceof Date ? job.postedAt.toISOString() : String(job.postedAt)) : null,
-        };
-
-        return jobMatchData;
+        return buildJobMatchData(job);
       });
 
       // -----------------------------------------------------------------------

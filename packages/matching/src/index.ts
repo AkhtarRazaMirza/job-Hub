@@ -12,3 +12,4 @@ export * from "./scoring-engine";
 export * from "./prompts";
 export * from "./match-explainer";
 export * from "./engine";
+export * from "./mapper";
