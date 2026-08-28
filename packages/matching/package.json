@@ -14,6 +14,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@job-hub/ai": "workspace:*",
     "@job-hub/db": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "zod": "^3.24.2"

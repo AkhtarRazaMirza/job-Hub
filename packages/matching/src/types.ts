@@ -119,3 +119,71 @@ export interface JobMatchFilter {
   limit?: number;
   offset?: number;
 }
+
+/**
+ * Pure Candidate data representation for matching evaluation.
+ */
+export interface CandidateMatchData {
+  candidateProfileId?: string;
+  headline?: string | null;
+  skills?: string[];
+  experienceLevel?: string; // "ENTRY" | "MID" | "SENIOR" | "LEAD" | "PRINCIPAL"
+  yearsOfExperience?: number;
+  remotePreference?: string; // "WORLDWIDE_REMOTE" | "COUNTRY_REMOTE" | "HYBRID" | "ONSITE" | "UNKNOWN"
+  preferredLocations?: string[];
+  salaryMin?: number | null;
+  salaryCurrency?: string;
+  projects?: Array<{
+    name: string;
+    technologies?: string[];
+    description?: string;
+  }>;
+  education?: Array<{
+    degree?: string;
+    fieldOfStudy?: string;
+    institution?: string;
+  }>;
+  targetRoles?: string[];
+}
+
+/**
+ * Pure Job data representation for matching evaluation.
+ */
+export interface JobMatchData {
+  id?: string;
+  title: string;
+  company: string;
+  description?: string | null;
+  location?: string | null;
+  remoteType?: string; // "WORLDWIDE_REMOTE" | "COUNTRY_REMOTE" | "REGION_REMOTE" | "HYBRID" | "ONSITE" | "UNKNOWN"
+  allowedCountries?: string[];
+  skills?: string[];
+  requirements?: string[];
+  experience?: string | null;
+  salary?: number | null;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  currency?: string | null;
+  status?: string; // "ACTIVE" | "CLOSED" | "UNKNOWN" | "ARCHIVED"
+  postedAt?: Date | string | null;
+}
+
+/**
+ * Semantic explanation synthesized by AI or fallback engine.
+ */
+export interface MatchExplanation {
+  strengths: string[];
+  gaps: string[];
+  risks: string[];
+  explanation: string;
+  confidence: number;
+}
+
+/**
+ * Input for the end-to-end matching evaluation.
+ */
+export interface EvaluateMatchInput {
+  candidate: CandidateMatchData;
+  job: JobMatchData;
+  weights?: ScoringWeights;
+}

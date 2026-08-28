@@ -5,9 +5,7 @@
 
 import { DrizzleJobMatchRepository, type JobMatchRepository } from "./repository";
 
-export * from "./types";
-export * from "./validation";
-export * from "./errors";
+export * from "./index";
 export * from "./repository";
 
 export const jobMatchRepository: JobMatchRepository = new DrizzleJobMatchRepository();
