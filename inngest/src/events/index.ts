@@ -1,4 +1,5 @@
 export * from "./job";
+export * from "./matching";
 
 import {
   jobDiscoveryTriggerEvent,
@@ -10,6 +11,11 @@ import {
   jobIngestedEvent,
 } from "./job";
 
+import {
+  jobMatchRequestedEvent,
+  jobMatchedEvent,
+} from "./matching";
+
 export const inngestEvents = [
   jobDiscoveryTriggerEvent,
   jobDiscoveredEvent,
@@ -18,4 +24,6 @@ export const inngestEvents = [
   jobVerifiedEvent,
   jobDuplicateDetectedEvent,
   jobIngestedEvent,
+  jobMatchRequestedEvent,
+  jobMatchedEvent,
 ];
