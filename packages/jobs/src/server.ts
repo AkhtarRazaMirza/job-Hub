@@ -9,6 +9,10 @@ import {
   type JobRepository,
   type JobSourceRepository,
 } from "./repository";
+import {
+  DrizzleSavedJobRepository,
+  type SavedJobRepository,
+} from "./saved-jobs";
 
 export * from "./repository";
 export * from "./errors";
@@ -16,6 +20,8 @@ export * from "./source";
 export * from "./normalization";
 export * from "./verification";
 export * from "./deduplication";
+export * from "./saved-jobs";
 
 export const jobRepository: JobRepository = new DrizzleJobRepository();
 export const jobSourceRepository: JobSourceRepository = new DrizzleJobSourceRepository();
+export const savedJobRepository: SavedJobRepository = new DrizzleSavedJobRepository();

@@ -50,3 +50,31 @@ export class JobSourceConflictError extends JobError {
     this.name = "JobSourceConflictError";
   }
 }
+
+export class SavedJobError extends Error {
+  constructor(message: string, public readonly code = "SAVED_JOB_ERROR") {
+    super(message);
+    this.name = "SavedJobError";
+  }
+}
+
+export class SavedJobNotFoundError extends SavedJobError {
+  constructor(message = "Saved job not found.") {
+    super(message, "SAVED_JOB_NOT_FOUND");
+    this.name = "SavedJobNotFoundError";
+  }
+}
+
+export class SavedJobValidationError extends SavedJobError {
+  constructor(message: string) {
+    super(message, "SAVED_JOB_VALIDATION_ERROR");
+    this.name = "SavedJobValidationError";
+  }
+}
+
+export class SavedJobConflictError extends SavedJobError {
+  constructor(message = "Job is already saved by this candidate.") {
+    super(message, "SAVED_JOB_CONFLICT");
+    this.name = "SavedJobConflictError";
+  }
+}

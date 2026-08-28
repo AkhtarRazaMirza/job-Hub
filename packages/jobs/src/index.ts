@@ -10,3 +10,4 @@ export * from "./source";
 export * from "./normalization";
 export * from "./verification";
 export * from "./deduplication";
+export * from "./saved-jobs";
