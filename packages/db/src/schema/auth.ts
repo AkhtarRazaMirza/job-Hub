@@ -14,6 +14,8 @@ export const user = pgTable("user", {
     .notNull(),
 });
 
+export const users = user;
+
 export const session = pgTable(
   "session",
   {

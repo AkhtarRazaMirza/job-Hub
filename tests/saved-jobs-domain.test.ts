@@ -75,6 +75,7 @@ test("Step 5.1 — Saved Jobs Domain & Persistence Test Suite", async (t) => {
       skills: ["Go", "Kubernetes"],
       status: "ACTIVE",
       source: "manual",
+      applicationUrl: "https://example.com/apply/1",
     });
     testJobId1 = job1.id;
 
@@ -86,6 +87,7 @@ test("Step 5.1 — Saved Jobs Domain & Persistence Test Suite", async (t) => {
       skills: ["Linux", "Terraform"],
       status: "ACTIVE",
       source: "manual",
+      applicationUrl: "https://example.com/apply/2",
     });
     testJobId2 = job2.id;
   });

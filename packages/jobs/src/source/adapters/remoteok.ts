@@ -175,10 +175,16 @@ export class RemoteOkAdapter implements JobSourceContract {
 
     const remoteType = classifyRemotePolicy(item.location, true);
 
+    const rawCanonical = (item.url || raw.url || "").trim();
+    const canonicalUrl =
+      rawCanonical && (rawCanonical.startsWith("http://") || rawCanonical.startsWith("https://"))
+        ? rawCanonical
+        : null;
+
     return {
       source: this.id,
       sourceJobId: String(item.id),
-      canonicalUrl: item.url && (item.url.startsWith("http://") || item.url.startsWith("https://")) ? item.url : null,
+      canonicalUrl,
       title,
       company,
       location: item.location ? item.location.trim() : null,

@@ -153,6 +153,7 @@ test("Step 4.7 — Phase 4 Completion Gate Test Suite", async (t) => {
       experience: "5+ years",
       status: "ACTIVE",
       source: "manual",
+      applicationUrl: "https://example.com/apply/apex-tech",
     });
     canonicalJobId = j.id;
   });

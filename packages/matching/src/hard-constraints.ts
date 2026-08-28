@@ -95,7 +95,7 @@ export function evaluateHardConstraints(
       const ageMs = referenceDate.getTime() - postedDate.getTime();
       if (ageMs > NINETY_DAYS_MS) {
         failures.push(
-          `JOB_STALE: Job posting is older than 90 days (posted: ${postedDate.toISOString().split("T")[0]}).`
+          `JOB_STALE: Job posting is Stale / older than 90 days (posted: ${postedDate.toISOString().split("T")[0]}).`
         );
       }
     }
@@ -113,7 +113,7 @@ export function evaluateHardConstraints(
     (jobRemote === "ONSITE" || jobRemote === "HYBRID")
   ) {
     failures.push(
-      `REMOTE_POLICY_MISMATCH: Candidate requires remote work, but job requires ${jobRemote} presence.`
+      `REMOTE_POLICY_MISMATCH: Candidate requires remote work, but job requires ${jobRemote === "ONSITE" ? "Onsite" : jobRemote === "HYBRID" ? "Hybrid" : jobRemote} (${jobRemote}) presence.`
     );
   }
 

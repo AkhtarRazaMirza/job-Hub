@@ -322,8 +322,8 @@ export const matchingRouter = router({
       }
 
       // 4. Assemble candidate & job data via pure domain mappers
-      const preferences = await candidatePreferencesService.getPreferences(candidateProfile.id);
-      const projects = await candidateProjectService.listProjects(candidateProfile.id);
+      const preferences = await candidatePreferencesService.getPreferences(candidateProfile.userId);
+      const projects = await candidateProjectService.listProjects(candidateProfile.userId);
       const candidateData = buildCandidateMatchData(candidateProfile, preferences, projects);
       const jobData = buildJobMatchData(job);
 

@@ -11,9 +11,15 @@ export interface MockAiResponseHandler<T = unknown> {
  */
 export class MockAiProvider implements AiProvider {
   private handler?: MockAiResponseHandler;
+  public readonly calls: Array<GenerateStructuredOutputOptions<unknown>> = [];
 
-  constructor(handler?: MockAiResponseHandler) {
-    this.handler = handler;
+  constructor(handler?: MockAiResponseHandler | unknown) {
+    if (typeof handler === "function") {
+      this.handler = handler as MockAiResponseHandler;
+    } else if (handler !== undefined) {
+      this.handler = () =>
+        typeof handler === "string" ? JSON.parse(handler) : handler;
+    }
   }
 
   setHandler(handler: MockAiResponseHandler): void {
@@ -21,6 +27,7 @@ export class MockAiProvider implements AiProvider {
   }
 
   async generateStructuredOutput<T>(options: GenerateStructuredOutputOptions<T>): Promise<T> {
+    this.calls.push(options as GenerateStructuredOutputOptions<unknown>);
     if (!this.handler) {
       throw new AiProviderError("MockAiProvider handler is not configured.", "MOCK_NOT_CONFIGURED");
     }

@@ -9,5 +9,17 @@ import { inngest, functions } from "@job-hub/inngest";
  */
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions,
+  functions: functions.map((fn: any) =>
+    typeof fn.id === "function"
+      ? fn
+      : new Proxy(fn, {
+          get(target, prop, receiver) {
+            if (prop === "id") {
+              return (prefix?: string) =>
+                [prefix, target.opts?.id || target.id].filter(Boolean).join("-");
+            }
+            return Reflect.get(target, prop, receiver);
+          },
+        })
+  ),
 });

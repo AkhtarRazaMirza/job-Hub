@@ -162,17 +162,32 @@ export class DrizzleSavedJobRepository implements SavedJobRepository {
 
       return this.toEntity(inserted);
     } catch (err: unknown) {
+      const errCode =
+        err && typeof err === "object" && "code" in err
+          ? (err as { code: string }).code
+          : undefined;
+      const causeCode =
+        err && typeof err === "object" && "cause" in err && (err as any).cause
+          ? (err as any).cause.code
+          : undefined;
+      const code = errCode || causeCode;
+
       // Handle race-condition DB unique constraint violation (PostgreSQL code 23505)
-      if (
-        err &&
-        typeof err === "object" &&
-        "code" in err &&
-        (err as { code: string }).code === "23505"
-      ) {
+      if (code === "23505") {
         throw new SavedJobConflictError(
           `Job "${validated.jobId}" is already saved by candidate "${validated.candidateProfileId}".`
         );
       }
+
+      // Handle DB foreign key constraint violation (PostgreSQL code 23503)
+      if (code === "23503") {
+        const causeMsg =
+          (err as any).cause?.message || "violates foreign key constraint";
+        throw new Error(`Database foreign key violation: ${causeMsg}`, {
+          cause: err,
+        });
+      }
+
       throw err;
     }
   }

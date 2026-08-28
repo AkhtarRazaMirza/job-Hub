@@ -128,6 +128,7 @@ test("Step 4.6 — Matching API & tRPC Layer Test Suite", async (t) => {
       experience: "5+ years",
       status: "ACTIVE",
       source: "manual",
+      applicationUrl: "https://example.com/apply/dist-sys",
     });
     testJobId = j.id;
 

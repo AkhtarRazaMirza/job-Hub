@@ -97,3 +97,9 @@ export const deduplicateAndIngestJobFunction = inngest.createFunction(
     };
   }
 );
+
+Object.defineProperty(deduplicateAndIngestJobFunction, "id", {
+  value: "deduplicate-and-ingest-job",
+  configurable: true,
+  writable: true,
+});

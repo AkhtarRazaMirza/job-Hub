@@ -9,6 +9,7 @@ const connectionString =
 
 export const queryClient = postgres(connectionString, {
   prepare: false,
+  idle_timeout: 1,
 });
 
 export const db = drizzle(queryClient, { schema });

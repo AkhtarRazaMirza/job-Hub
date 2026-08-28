@@ -58,3 +58,9 @@ export const normalizeJobFunction = inngest.createFunction(
     };
   }
 );
+
+Object.defineProperty(normalizeJobFunction, "id", {
+  value: "normalize-job",
+  configurable: true,
+  writable: true,
+});

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, User } from "lucide-react";
+import { Briefcase, User, LayoutDashboard } from "lucide-react";
 
 export function SiteHeader() {
   return (
@@ -23,8 +23,15 @@ export function SiteHeader() {
             Home
           </Link>
           <Link
-            href="/profile"
+            href="/dashboard"
             className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-foreground bg-muted/60 transition-colors hover:bg-muted"
+          >
+            <LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Dashboard</span>
+          </Link>
+          <Link
+            href="/profile"
+            className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/40"
           >
             <User className="h-3.5 w-3.5" aria-hidden="true" />
             <span>Profile</span>

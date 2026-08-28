@@ -27,8 +27,12 @@ import { auditRemoteClassification } from "./remote-auditor";
 export class JobVerificationEngine {
   constructor(
     private readonly registry: JobSourceRegistry = jobSourceRegistry,
-    private readonly fetchFn: typeof fetch = fetch
+    private readonly fetchFn?: typeof fetch
   ) {}
+
+  private get fetch(): typeof fetch {
+    return this.fetchFn ?? globalThis.fetch;
+  }
 
   /**
    * Performs comprehensive multi-factor verification on a job posting.
@@ -73,7 +77,7 @@ export class JobVerificationEngine {
       } else {
         // Fallback HTTP HEAD probe
         try {
-          const res = await this.fetchFn(job.applicationUrl, {
+          const res = await this.fetch(job.applicationUrl, {
             method: "HEAD",
             signal: options?.signal,
             headers: {

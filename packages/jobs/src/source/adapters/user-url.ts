@@ -27,7 +27,11 @@ export class UserUrlAdapter implements JobSourceContract {
   readonly name = "User-Provided Job URL";
   readonly type = "USER_URL" as const;
 
-  constructor(private readonly fetchFn: typeof fetch = fetch) {}
+  constructor(private readonly fetchFn?: typeof fetch) {}
+
+  private get fetch(): typeof fetch {
+    return this.fetchFn ?? globalThis.fetch;
+  }
 
   async discover(): Promise<DiscoveredRawJob[]> {
     // User URLs are submitted on demand rather than bulk pulled
@@ -85,7 +89,7 @@ export class UserUrlAdapter implements JobSourceContract {
     signal?: AbortSignal;
   }): Promise<JobStatus> {
     try {
-      const res = await this.fetchFn(options.applicationUrl, {
+      const res = await this.fetch(options.applicationUrl, {
         method: "HEAD",
         signal: options.signal,
         headers: {

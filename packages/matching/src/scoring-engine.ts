@@ -298,6 +298,8 @@ export function deriveMatchDecision(overallScore: number): MatchDecision {
   return "EXCELLENT_MATCH";
 }
 
+export const determineMatchDecision = deriveMatchDecision;
+
 /**
  * Pure deterministic seven-factor weighted scoring engine.
  */

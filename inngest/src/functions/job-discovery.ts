@@ -106,3 +106,9 @@ export const discoverJobsFunction = inngest.createFunction(
     };
   }
 );
+
+Object.defineProperty(discoverJobsFunction, "id", {
+  value: "discover-jobs",
+  configurable: true,
+  writable: true,
+});

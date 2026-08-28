@@ -206,6 +206,7 @@ export function createMatchCandidateJobFunction(deps?: MatchingWorkflowDependenc
       });
 
       return {
+        success: true,
         status: "MATCHED" as const,
         matchId: persistedMatch.id,
         candidateProfileId,

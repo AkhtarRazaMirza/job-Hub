@@ -64,6 +64,8 @@ export interface CandidateProfile {
 export interface CreateCandidateProfileInput {
   userId: string;
   id?: string;
+  headline?: string | null;
+  profileData?: StructuredCandidateProfile | any | null;
 }
 
 /**

@@ -67,6 +67,8 @@ export class DrizzleCandidateProfileRepository implements CandidateProfileReposi
         .values({
           id: input.id,
           userId: input.userId,
+          headline: input.headline ?? null,
+          profileData: input.profileData ?? null,
         })
         .returning();
 
@@ -133,3 +135,7 @@ export class DrizzleCandidateProfileRepository implements CandidateProfileReposi
     return this.toEntity(updated);
   }
 }
+
+export const candidateProfileRepository: CandidateProfileRepository =
+  new DrizzleCandidateProfileRepository();
+

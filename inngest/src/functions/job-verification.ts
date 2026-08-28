@@ -60,3 +60,9 @@ export const verifyJobFunction = inngest.createFunction(
     };
   }
 );
+
+Object.defineProperty(verifyJobFunction, "id", {
+  value: "verify-job",
+  configurable: true,
+  writable: true,
+});
