@@ -4,10 +4,14 @@ import {
   jobDiscoveryTriggerEvent,
   jobDiscoveredEvent,
   jobNormalizeRequestedEvent,
+  jobNormalizedEvent,
+  jobVerifiedEvent,
 } from "./job";
 
 export const inngestEvents = [
   jobDiscoveryTriggerEvent,
   jobDiscoveredEvent,
   jobNormalizeRequestedEvent,
+  jobNormalizedEvent,
+  jobVerifiedEvent,
 ];

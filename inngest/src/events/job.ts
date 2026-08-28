@@ -66,3 +66,51 @@ export type JobNormalizeRequestedData = z.infer<typeof jobNormalizeRequestedData
 export const jobNormalizeRequestedEvent = eventType("job.normalize.requested", {
   schema: jobNormalizeRequestedDataSchema,
 });
+
+/**
+ * Event: job.normalized
+ * Emitted after a discovered job is successfully normalized into the canonical Job model.
+ */
+export const jobNormalizedDataSchema = z.object({
+  job: z.record(z.unknown()),
+  source: z.string().min(1),
+  sourceJobId: z.string().min(1),
+  rawUrl: z.string().url().optional(),
+  normalizedAt: z.string(),
+});
+
+export type JobNormalizedData = z.infer<typeof jobNormalizedDataSchema>;
+
+export const jobNormalizedEvent = eventType("job.normalized", {
+  schema: jobNormalizedDataSchema,
+});
+
+/**
+ * Event: job.verified
+ * Emitted after a normalized job has passed verification checks.
+ */
+export const jobVerifiedDataSchema = z.object({
+  job: z.record(z.unknown()),
+  source: z.string().min(1),
+  sourceJobId: z.string().min(1),
+  status: z.enum(["ACTIVE", "CLOSED", "UNKNOWN"]),
+  isVerified: z.boolean(),
+  isStale: z.boolean(),
+  isSpam: z.boolean(),
+  remoteClassification: z.enum([
+    "WORLDWIDE_REMOTE",
+    "COUNTRY_REMOTE",
+    "REGION_REMOTE",
+    "HYBRID",
+    "ONSITE",
+    "UNKNOWN",
+  ]),
+  reasons: z.array(z.string()),
+  verifiedAt: z.string(),
+});
+
+export type JobVerifiedData = z.infer<typeof jobVerifiedDataSchema>;
+
+export const jobVerifiedEvent = eventType("job.verified", {
+  schema: jobVerifiedDataSchema,
+});

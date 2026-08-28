@@ -13,6 +13,8 @@ import {
 export * from "./repository";
 export * from "./errors";
 export * from "./source";
+export * from "./normalization";
+export * from "./verification";
 
 export const jobRepository: JobRepository = new DrizzleJobRepository();
 export const jobSourceRepository: JobSourceRepository = new DrizzleJobSourceRepository();
