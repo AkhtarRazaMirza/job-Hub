@@ -15,6 +15,7 @@
     "@job-hub/db": "workspace:*",
     "@job-hub/inngest": "workspace:*",
     "@job-hub/jobs": "workspace:*",
+    "@job-hub/matching": "workspace:*",
     "@radix-ui/react-slot": "^1.1.2",
     "@trpc/client": "^11.18.0",
     "@trpc/server": "^11.18.0",

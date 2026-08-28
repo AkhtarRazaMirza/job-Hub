@@ -1,0 +1,28 @@
+{
+  "name": "@job-hub/matching",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@job-hub/db": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@job-hub/eslint-config": "workspace:*",
+    "@job-hub/typescript-config": "workspace:*",
+    "@types/node": "^22.13.4",
+    "eslint": "^9.20.1",
+    "typescript": "^5.7.3"
+  }
+}

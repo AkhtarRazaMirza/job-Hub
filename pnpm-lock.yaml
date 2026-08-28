@@ -29,6 +29,9 @@ importers:
       '@job-hub/jobs':
         specifier: workspace:*
         version: link:../../packages/jobs
+      '@job-hub/matching':
+        specifier: workspace:*
+        version: link:../../packages/matching
       '@radix-ui/react-slot':
         specifier: ^1.1.2
         version: 1.3.3(@types/react@19.2.18)(react@19.2.8)
@@ -253,6 +256,34 @@ importers:
         version: 16.3.3(@typescript-eslint/parser@8.68.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
 
   packages/jobs:
+    dependencies:
+      '@job-hub/db':
+        specifier: workspace:*
+        version: link:../db
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.15.6)(kysely@0.29.5)(postgres@3.4.9)
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
+    devDependencies:
+      '@job-hub/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@job-hub/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.20.1
+      eslint:
+        specifier: ^9.20.1
+        version: 9.39.5(jiti@2.7.0)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/matching:
     dependencies:
       '@job-hub/db':
         specifier: workspace:*
