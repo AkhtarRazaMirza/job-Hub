@@ -7,7 +7,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "check-types": "turbo check-types",
-    "test": "./apps/web/node_modules/.bin/jiti tests/candidate-persistence.test.ts && ./apps/web/node_modules/.bin/jiti tests/e2e-api.test.ts && ./apps/web/node_modules/.bin/jiti tests/profile-ui.test.ts && ./apps/web/node_modules/.bin/jiti tests/resume-ingestion.test.ts && ./apps/web/node_modules/.bin/jiti tests/resume-live-http.test.ts && ./apps/web/node_modules/.bin/jiti tests/resume-extraction.test.ts && ./apps/web/node_modules/.bin/jiti tests/candidate-profiling.test.ts && ./apps/web/node_modules/.bin/jiti tests/candidate-preferences.test.ts && ./apps/web/node_modules/.bin/jiti tests/github-analysis.test.ts && ./apps/web/node_modules/.bin/jiti tests/portfolio-ingestion.test.ts && ./apps/web/node_modules/.bin/jiti tests/profile-unified-verification.test.ts"
+    "test": "./apps/web/node_modules/.bin/jiti tests/candidate-persistence.test.ts && ./apps/web/node_modules/.bin/jiti tests/e2e-api.test.ts && ./apps/web/node_modules/.bin/jiti tests/profile-ui.test.ts && ./apps/web/node_modules/.bin/jiti tests/resume-ingestion.test.ts && ./apps/web/node_modules/.bin/jiti tests/resume-live-http.test.ts && ./apps/web/node_modules/.bin/jiti tests/resume-extraction.test.ts && ./apps/web/node_modules/.bin/jiti tests/candidate-profiling.test.ts && ./apps/web/node_modules/.bin/jiti tests/candidate-preferences.test.ts && ./apps/web/node_modules/.bin/jiti tests/github-analysis.test.ts && ./apps/web/node_modules/.bin/jiti tests/portfolio-ingestion.test.ts && ./apps/web/node_modules/.bin/jiti tests/profile-unified-verification.test.ts && ./apps/web/node_modules/.bin/jiti tests/jobs-domain.test.ts"
   },
   "devDependencies": {
     "turbo": "^2.4.4"
