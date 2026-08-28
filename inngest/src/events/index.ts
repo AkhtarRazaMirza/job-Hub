@@ -6,6 +6,8 @@ import {
   jobNormalizeRequestedEvent,
   jobNormalizedEvent,
   jobVerifiedEvent,
+  jobDuplicateDetectedEvent,
+  jobIngestedEvent,
 } from "./job";
 
 export const inngestEvents = [
@@ -14,4 +16,6 @@ export const inngestEvents = [
   jobNormalizeRequestedEvent,
   jobNormalizedEvent,
   jobVerifiedEvent,
+  jobDuplicateDetectedEvent,
+  jobIngestedEvent,
 ];

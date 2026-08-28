@@ -170,3 +170,24 @@ export const updateJobInputSchema = z
   .strict();
 
 export type UpdateJobSchemaInput = z.infer<typeof updateJobInputSchema>;
+
+/**
+ * Strict schema for manual job URL submission.
+ */
+export const submitJobUrlInputSchema = z
+  .object({
+    url: httpUrlSchema,
+    title: z.string().min(1).max(200).optional(),
+    company: z.string().min(1).max(200).optional(),
+    location: z.string().max(200).optional(),
+    description: z.string().max(50000).optional(),
+    skills: z.array(z.string().min(1).max(50)).max(50).optional(),
+    salaryMin: z.number().int().nonnegative().optional(),
+    salaryMax: z.number().int().nonnegative().optional(),
+    currency: z.string().max(10).optional(),
+  })
+  .strict();
+
+export type SubmitJobUrlInput = z.infer<typeof submitJobUrlInputSchema>;
+
+export { z };

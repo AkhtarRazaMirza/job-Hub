@@ -34,6 +34,8 @@ export interface JobRepository {
   findById(id: string): Promise<Job | null>;
   findBySourceAndSourceJobId(source: string, sourceJobId: string): Promise<Job | null>;
   findByCanonicalUrl(canonicalUrl: string): Promise<Job | null>;
+  findByApplicationUrl(applicationUrl: string): Promise<Job | null>;
+  findByCompany(company: string): Promise<Job[]>;
   create(input: CreateJobInput): Promise<Job>;
   update(id: string, input: UpdateJobInput): Promise<Job>;
   list(filter?: JobFilter): Promise<Job[]>;
@@ -221,6 +223,26 @@ export class DrizzleJobRepository implements JobRepository {
       .limit(1);
 
     return row ? this.toEntity(row) : null;
+  }
+
+  async findByApplicationUrl(applicationUrl: string): Promise<Job | null> {
+    const [row] = await this.db
+      .select()
+      .from(jobsTable)
+      .where(eq(jobsTable.applicationUrl, applicationUrl))
+      .limit(1);
+
+    return row ? this.toEntity(row) : null;
+  }
+
+  async findByCompany(company: string): Promise<Job[]> {
+    const rows = await this.db
+      .select()
+      .from(jobsTable)
+      .where(eq(jobsTable.company, company))
+      .limit(50);
+
+    return rows.map((r) => this.toEntity(r));
   }
 
   async create(input: CreateJobInput): Promise<Job> {

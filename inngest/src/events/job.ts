@@ -114,3 +114,50 @@ export type JobVerifiedData = z.infer<typeof jobVerifiedDataSchema>;
 export const jobVerifiedEvent = eventType("job.verified", {
   schema: jobVerifiedDataSchema,
 });
+
+/**
+ * Event: job.duplicate.detected
+ * Emitted when a job matches an existing canonical job record during deduplication.
+ */
+export const jobDuplicateDetectedDataSchema = z.object({
+  source: z.string().min(1),
+  sourceJobId: z.string().min(1),
+  canonicalJobId: z.string().min(1),
+  matchType: z.string(),
+  confidence: z.number(),
+  reasons: z.array(z.string()),
+  detectedAt: z.string(),
+});
+
+export type JobDuplicateDetectedData = z.infer<typeof jobDuplicateDetectedDataSchema>;
+
+export const jobDuplicateDetectedEvent = eventType("job.duplicate.detected", {
+  schema: jobDuplicateDetectedDataSchema,
+});
+
+/**
+ * Event: job.ingested
+ * Emitted when a unique canonical job is successfully stored in the jobs database.
+ */
+export const jobIngestedDataSchema = z.object({
+  jobId: z.string().min(1),
+  source: z.string().min(1),
+  sourceJobId: z.string().min(1),
+  title: z.string().min(1),
+  company: z.string().min(1),
+  remoteType: z.enum([
+    "WORLDWIDE_REMOTE",
+    "COUNTRY_REMOTE",
+    "REGION_REMOTE",
+    "HYBRID",
+    "ONSITE",
+    "UNKNOWN",
+  ]),
+  ingestedAt: z.string(),
+});
+
+export type JobIngestedData = z.infer<typeof jobIngestedDataSchema>;
+
+export const jobIngestedEvent = eventType("job.ingested", {
+  schema: jobIngestedDataSchema,
+});
