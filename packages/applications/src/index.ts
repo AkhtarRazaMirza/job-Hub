@@ -7,3 +7,4 @@ export * from "./types";
 export * from "./lifecycle";
 export * from "./errors";
 export * from "./validation";
+export * from "./tailoring";

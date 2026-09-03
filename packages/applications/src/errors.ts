@@ -52,3 +52,30 @@ export class ApplicationForbiddenError extends ApplicationError {
     this.name = "ApplicationForbiddenError";
   }
 }
+
+export class ResumeTruthfulnessViolationError extends ApplicationError {
+  readonly violations: Array<{ type: string; message: string; claim: string }>;
+
+  constructor(
+    violations: Array<{ type: string; message: string; claim: string }>
+  ) {
+    const summary = violations.map((v) => `[${v.type}] ${v.message}`).join("; ");
+    super(`Resume tailoring truthfulness check failed: ${summary}`);
+    this.name = "ResumeTruthfulnessViolationError";
+    this.violations = violations;
+  }
+}
+
+export class TailoredResumeNotFoundError extends ApplicationError {
+  constructor(identifier: string) {
+    super(`Tailored resume not found: ${identifier}`);
+    this.name = "TailoredResumeNotFoundError";
+  }
+}
+
+export class TailoredResumeForbiddenError extends ApplicationError {
+  constructor(message = "You do not have permission to access or modify this tailored resume") {
+    super(message);
+    this.name = "TailoredResumeForbiddenError";
+  }
+}

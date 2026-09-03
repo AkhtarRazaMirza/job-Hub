@@ -170,9 +170,18 @@ importers:
 
   packages/applications:
     dependencies:
+      '@job-hub/ai':
+        specifier: workspace:*
+        version: link:../ai
+      '@job-hub/candidate':
+        specifier: workspace:*
+        version: link:../candidate
       '@job-hub/db':
         specifier: workspace:*
         version: link:../db
+      '@job-hub/jobs':
+        specifier: workspace:*
+        version: link:../jobs
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.15.6)(kysely@0.29.5)(postgres@3.4.9)
