@@ -20,6 +20,7 @@ export interface DashboardStats {
   reviewMatches: number;
   skipMatches?: number;
   savedJobsCount: number;
+  totalApplications?: number;
 }
 
 export interface DashboardOverview {
@@ -120,5 +121,44 @@ export interface SavedJobFeedItem {
     strengths: string[];
     gaps: string[];
     risks: string[];
+  } | null;
+}
+
+export interface ApplicationFeedItem {
+  id: string;
+  candidateProfileId: string;
+  jobId: string;
+  matchId: string | null;
+  company: string;
+  role: string;
+  source: string;
+  applicationUrl: string | null;
+  matchScore: string | null;
+  status: string; // PREPARED | APPLIED | UNDER_REVIEW | INTERVIEW_SCHEDULED | INTERVIEW_COMPLETED | OFFER | REJECTED | WITHDRAWN
+  submittedAt: Date | string | null;
+  nextAction: string | null;
+  followUpDate: Date | string | null;
+  notes: string | null;
+  resumeVersionId: string | null;
+  coverLetterVersionId: string | null;
+  confirmationReference: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  job: {
+    id: string;
+    title: string;
+    company: string;
+    location: string | null;
+    remoteType: string;
+    salaryMin: number | null;
+    salaryMax: number | null;
+    currency: string | null;
+    canonicalUrl: string | null;
+    source: string;
+  };
+  match?: {
+    id: string;
+    overallScore: string;
+    decision: string;
   } | null;
 }

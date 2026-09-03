@@ -5,3 +5,4 @@ export * from "./resume";
 export * from "./jobs";
 export * from "./matching";
 export * from "./saved-jobs";
+export * from "./applications";

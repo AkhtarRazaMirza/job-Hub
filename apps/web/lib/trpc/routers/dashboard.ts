@@ -23,6 +23,7 @@ import {
   jobMatches,
   jobs,
   savedJobs,
+  applications,
   eq,
   and,
   desc,
@@ -130,6 +131,11 @@ export const dashboardRouter = router({
         else if (row.decision === "SKIP") skipMatches += c;
       }
 
+      const [appCountRow] = await db
+        .select({ count: count() })
+        .from(applications)
+        .where(eq(applications.candidateProfileId, profile.id));
+
       return {
         totalMatches,
         excellentMatches,
@@ -137,6 +143,7 @@ export const dashboardRouter = router({
         reviewMatches,
         skipMatches,
         savedJobsCount: Number(savedCountRow?.count ?? 0),
+        totalApplications: Number(appCountRow?.count ?? 0),
       };
     }),
 

@@ -71,18 +71,21 @@ export default async function DashboardPage() {
   let initialOverview = null;
   let initialMatches = null;
   let initialSavedJobs = null;
+  let initialApplications = null;
   let hasProfile = true;
 
   try {
-    const [overviewRes, matchesRes, savedRes] = await Promise.all([
+    const [overviewRes, matchesRes, savedRes, applicationsRes] = await Promise.all([
       caller.dashboard.overview(),
       caller.dashboard.matchesFeed({ limit: 20, offset: 0 }),
       caller.dashboard.savedJobsFeed({ limit: 20, offset: 0 }),
+      caller.applications.list({ limit: 50, offset: 0 }),
     ]);
 
     initialOverview = overviewRes;
     initialMatches = matchesRes;
     initialSavedJobs = savedRes;
+    initialApplications = applicationsRes;
   } catch (error: any) {
     if (error?.code === "NOT_FOUND" || error?.message?.includes("Candidate profile not found")) {
       hasProfile = false;
@@ -127,6 +130,7 @@ export default async function DashboardPage() {
         initialOverview={initialOverview as any}
         initialMatches={initialMatches as any}
         initialSavedJobs={initialSavedJobs as any}
+        initialApplications={initialApplications as any}
       />
     </main>
   );

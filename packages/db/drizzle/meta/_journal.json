@@ -92,6 +92,13 @@
       "when": 1787917339077,
       "tag": "0012_married_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788415876162,
+      "tag": "0013_striped_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }

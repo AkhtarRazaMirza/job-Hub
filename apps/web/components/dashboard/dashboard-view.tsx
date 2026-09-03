@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { ProfileOverviewCard } from "./profile-overview-card";
 import { MatchCard } from "./match-card";
 import { SavedJobsTab } from "./saved-jobs-tab";
+import { ApplicationsTab } from "./applications-tab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpcClient } from "@/lib/trpc/client";
@@ -11,11 +12,15 @@ import type {
   DashboardOverview,
   MatchFeedItem,
   SavedJobFeedItem,
+  ApplicationFeedItem,
   RemoteType,
 } from "./types";
+import type { ApplicationStatus } from "@job-hub/applications";
 import {
   Sparkles,
   Bookmark,
+  Send,
+  FileText,
   SlidersHorizontal,
   RefreshCw,
   Loader2,
@@ -35,14 +40,19 @@ interface DashboardViewProps {
     total: number;
     hasMore: boolean;
   } | null;
+  initialApplications?: {
+    items: ApplicationFeedItem[];
+    total: number;
+  } | null;
 }
 
 export function DashboardView({
   initialOverview,
   initialMatches,
   initialSavedJobs,
+  initialApplications,
 }: DashboardViewProps) {
-  const [activeTab, setActiveTab] = useState<"matches" | "saved">("matches");
+  const [activeTab, setActiveTab] = useState<"matches" | "saved" | "applications">("matches");
   const [overview, setOverview] = useState<DashboardOverview | null>(initialOverview);
 
   // Matches Feed State
@@ -117,6 +127,110 @@ export function DashboardView({
       setIsLoadingSaved(false);
     }
   }, []);
+
+  // Applications State
+  const [applicationsList, setApplicationsList] = useState<ApplicationFeedItem[]>(
+    initialApplications?.items || []
+  );
+  const [totalApplications, setTotalApplications] = useState<number>(
+    initialApplications?.total || 0
+  );
+  const [isLoadingApplications, setIsLoadingApplications] = useState(false);
+  const [selectedApplicationStatus, setSelectedApplicationStatus] = useState<
+    ApplicationStatus | undefined
+  >(undefined);
+
+  // Reload Applications
+  const reloadApplications = useCallback(
+    async (status?: ApplicationStatus) => {
+      setIsLoadingApplications(true);
+      setErrorMsg(null);
+      try {
+        const res = await trpcClient.applications.list.query({
+          limit: 50,
+          status,
+        });
+        setApplicationsList(res.items as any);
+        setTotalApplications(res.total);
+      } catch (err: any) {
+        setErrorMsg(err.message || "Failed to load applications");
+      } finally {
+        setIsLoadingApplications(false);
+      }
+    },
+    []
+  );
+
+  const handleTransitionStatus = async (
+    id: string,
+    toStatus: ApplicationStatus,
+    extra?: {
+      notes?: string;
+      nextAction?: string;
+      followUpDate?: string;
+      confirmationReference?: string;
+    }
+  ) => {
+    try {
+      await trpcClient.applications.transitionStatus.mutate({
+        id,
+        toStatus,
+        ...extra,
+      });
+      await reloadApplications(selectedApplicationStatus);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to transition application status");
+      throw err;
+    }
+  };
+
+  const handleUpdateApplicationNotes = async (id: string, notes: string | null) => {
+    try {
+      await trpcClient.applications.updateNotes.mutate({ id, notes });
+      await reloadApplications(selectedApplicationStatus);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to update notes");
+      throw err;
+    }
+  };
+
+  const handleUpdateApplicationFollowUp = async (
+    id: string,
+    followUpDate: string | null,
+    nextAction: string | null
+  ) => {
+    try {
+      await trpcClient.applications.updateFollowUp.mutate({
+        id,
+        followUpDate: followUpDate || undefined,
+        nextAction: nextAction || undefined,
+      });
+      await reloadApplications(selectedApplicationStatus);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to update follow-up");
+      throw err;
+    }
+  };
+
+  const handleWithdrawApplication = async (id: string, reason?: string) => {
+    try {
+      await trpcClient.applications.withdraw.mutate({ id, reason });
+      await reloadApplications(selectedApplicationStatus);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to withdraw application");
+      throw err;
+    }
+  };
+
+  const handleDeleteApplication = async (id: string) => {
+    try {
+      await trpcClient.applications.delete.mutate({ id });
+      await reloadApplications(selectedApplicationStatus);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to delete application");
+      throw err;
+    }
+  };
 
   // Handle Decision Filter Change
   const handleDecisionFilter = (decision: string | undefined) => {
@@ -306,6 +420,26 @@ export function DashboardView({
               {overview?.stats.savedJobsCount ?? totalSavedJobs}
             </Badge>
           </Button>
+
+          <Button
+            type="button"
+            variant={activeTab === "applications" ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setActiveTab("applications");
+              reloadApplications(selectedApplicationStatus);
+            }}
+            className="text-xs h-8 gap-1.5 cursor-pointer"
+          >
+            <Send className="h-3.5 w-3.5" />
+            <span>Applications</span>
+            <Badge
+              variant="secondary"
+              className="ml-1 text-[10px] px-1.5 py-0 rounded-full font-bold"
+            >
+              {overview?.stats.totalApplications ?? totalApplications}
+            </Badge>
+          </Button>
         </div>
 
         {/* Refresh button */}
@@ -316,16 +450,18 @@ export function DashboardView({
           onClick={() => {
             if (activeTab === "matches") {
               reloadMatches(selectedDecision, selectedMinScore, selectedRemoteType, 0);
-            } else {
+            } else if (activeTab === "saved") {
               reloadSavedJobs();
+            } else {
+              reloadApplications(selectedApplicationStatus);
             }
           }}
-          disabled={isLoadingMatches || isLoadingSaved}
+          disabled={isLoadingMatches || isLoadingSaved || isLoadingApplications}
           className="text-xs h-8 gap-1 text-muted-foreground self-end sm:self-auto cursor-pointer"
         >
           <RefreshCw
             className={`h-3.5 w-3.5 ${
-              isLoadingMatches || isLoadingSaved ? "animate-spin" : ""
+              isLoadingMatches || isLoadingSaved || isLoadingApplications ? "animate-spin" : ""
             }`}
           />
           <span>Refresh</span>
@@ -507,6 +643,24 @@ export function DashboardView({
             />
           )}
         </div>
+      )}
+
+      {/* APPLICATIONS VIEW */}
+      {activeTab === "applications" && (
+        <ApplicationsTab
+          items={applicationsList}
+          isLoading={isLoadingApplications}
+          selectedStatus={selectedApplicationStatus}
+          onFilterStatus={(status) => {
+            setSelectedApplicationStatus(status);
+            reloadApplications(status);
+          }}
+          onTransitionStatus={handleTransitionStatus}
+          onUpdateNotes={handleUpdateApplicationNotes}
+          onUpdateFollowUp={handleUpdateApplicationFollowUp}
+          onWithdraw={handleWithdrawApplication}
+          onDelete={handleDeleteApplication}
+        />
       )}
     </div>
   );

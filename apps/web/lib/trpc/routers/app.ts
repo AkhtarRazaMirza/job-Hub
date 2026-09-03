@@ -5,6 +5,7 @@ import { jobsRouter } from "./jobs";
 import { matchingRouter } from "./matching";
 import { savedJobsRouter } from "./saved-jobs";
 import { dashboardRouter } from "./dashboard";
+import { applicationsRouter } from "./applications";
 
 export const appRouter = router({
   candidate: candidateRouter,
@@ -13,6 +14,7 @@ export const appRouter = router({
   matching: matchingRouter,
   savedJobs: savedJobsRouter,
   dashboard: dashboardRouter,
+  applications: applicationsRouter,
 });
 
 export type AppRouter = typeof appRouter;
