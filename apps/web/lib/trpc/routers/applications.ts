@@ -29,7 +29,12 @@ import {
   InvalidStateTransitionError,
   ApplicationError,
 } from "@job-hub/applications";
-import { applicationRepository } from "@job-hub/applications/server";
+import {
+  applicationRepository,
+  applicationPreparationService,
+  coverLetterRepository,
+  applicationAnswerRepository,
+} from "@job-hub/applications/server";
 import { candidateProfileService } from "@job-hub/candidate/server";
 import { jobRepository } from "@job-hub/jobs/server";
 
@@ -128,6 +133,52 @@ export const applicationStatsRouterInputSchema = z
   })
   .strict()
   .optional();
+
+export const preparePackageRouterInputSchema = z
+  .object({
+    jobId: z.string().min(1, "Job ID is required"),
+    questions: z.array(z.string().min(1)).optional(),
+    customCoverLetterNotes: z.string().max(1000).optional(),
+    candidateProfileId: z.string().optional(),
+    userId: z.string().optional(),
+  })
+  .strict();
+
+export const getPackageRouterInputSchema = z
+  .object({
+    applicationId: z.string().min(1, "Application ID is required"),
+    candidateProfileId: z.string().optional(),
+    userId: z.string().optional(),
+  })
+  .strict();
+
+export const approvePackageRouterInputSchema = z
+  .object({
+    applicationId: z.string().min(1, "Application ID is required"),
+    candidateProfileId: z.string().optional(),
+    userId: z.string().optional(),
+  })
+  .strict();
+
+export const updateCoverLetterRouterInputSchema = z
+  .object({
+    id: z.string().min(1, "Cover letter ID is required"),
+    content: z.string().min(50, "Cover letter content cannot be empty"),
+    candidateProfileId: z.string().optional(),
+    userId: z.string().optional(),
+  })
+  .strict();
+
+export const updateAnswerRouterInputSchema = z
+  .object({
+    answerId: z.string().min(1, "Answer ID is required"),
+    applicationId: z.string().min(1, "Application ID is required"),
+    answer: z.string().min(1, "Answer cannot be empty"),
+    isConfirmed: z.boolean().optional(),
+    candidateProfileId: z.string().optional(),
+    userId: z.string().optional(),
+  })
+  .strict();
 
 // -----------------------------------------------------------------------------
 // Helper: Resolve & Authorize Candidate Profile
@@ -455,6 +506,164 @@ export const applicationsRouter = router({
       }
 
       return { success: true };
+    }),
+
+  /**
+   * Prepare a complete application package (tailored resume, PDF, cover letter, answers)
+   */
+  preparePackage: protectedProcedure
+    .input(preparePackageRouterInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const profile = await resolveCandidateProfile(
+        ctx.user.id,
+        input.candidateProfileId,
+        input.userId
+      );
+
+      try {
+        return await applicationPreparationService.prepareApplicationPackage({
+          candidateProfileId: profile.id,
+          jobId: input.jobId,
+          questions: input.questions,
+          customCoverLetterNotes: input.customCoverLetterNotes,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to prepare application package",
+        });
+      }
+    }),
+
+  /**
+   * Get an existing application preparation package
+   */
+  getPackage: protectedProcedure
+    .input(getPackageRouterInputSchema)
+    .query(async ({ ctx, input }) => {
+      const profile = await resolveCandidateProfile(
+        ctx.user.id,
+        input.candidateProfileId,
+        input.userId
+      );
+
+      try {
+        return await applicationPreparationService.getPackage(
+          input.applicationId,
+          profile.id
+        );
+      } catch (error) {
+        if (error instanceof ApplicationNotFoundError) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: error.message,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to retrieve package",
+        });
+      }
+    }),
+
+  /**
+   * Explicit user approval of application package materials
+   */
+  approvePackage: protectedProcedure
+    .input(approvePackageRouterInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const profile = await resolveCandidateProfile(
+        ctx.user.id,
+        input.candidateProfileId,
+        input.userId
+      );
+
+      try {
+        return await applicationPreparationService.approvePackage({
+          applicationId: input.applicationId,
+          candidateProfileId: profile.id,
+        });
+      } catch (error) {
+        if (error instanceof ApplicationNotFoundError) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: error.message,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to approve package",
+        });
+      }
+    }),
+
+  /**
+   * Candidate edits cover letter content
+   */
+  updateCoverLetter: protectedProcedure
+    .input(updateCoverLetterRouterInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const profile = await resolveCandidateProfile(
+        ctx.user.id,
+        input.candidateProfileId,
+        input.userId
+      );
+
+      try {
+        return await coverLetterRepository.update({
+          id: input.id,
+          candidateProfileId: profile.id,
+          content: input.content,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to update cover letter",
+        });
+      }
+    }),
+
+  /**
+   * Candidate edits/confirms an application answer
+   */
+  updateAnswer: protectedProcedure
+    .input(updateAnswerRouterInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const profile = await resolveCandidateProfile(
+        ctx.user.id,
+        input.candidateProfileId,
+        input.userId
+      );
+
+      try {
+        return await applicationAnswerRepository.updateAnswer({
+          answerId: input.answerId,
+          applicationId: input.applicationId,
+          candidateProfileId: profile.id,
+          answer: input.answer,
+          isConfirmed: input.isConfirmed,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to update answer",
+        });
+      }
     }),
 
   /**

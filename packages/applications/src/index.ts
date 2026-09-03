@@ -8,3 +8,6 @@ export * from "./lifecycle";
 export * from "./errors";
 export * from "./validation";
 export * from "./tailoring";
+export * from "./cover-letter";
+export * from "./answers";
+export * from "./orchestrator";

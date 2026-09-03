@@ -79,3 +79,50 @@ export class TailoredResumeForbiddenError extends ApplicationError {
     this.name = "TailoredResumeForbiddenError";
   }
 }
+
+export class CoverLetterTruthfulnessViolationError extends ApplicationError {
+  readonly violations: Array<{ type: string; message: string; claim: string }>;
+
+  constructor(
+    violations: Array<{ type: string; message: string; claim: string }>
+  ) {
+    const summary = violations.map((v) => `[${v.type}] ${v.message}`).join("; ");
+    super(`Cover letter truthfulness check failed: ${summary}`);
+    this.name = "CoverLetterTruthfulnessViolationError";
+    this.violations = violations;
+  }
+}
+
+export class CoverLetterNotFoundError extends ApplicationError {
+  constructor(identifier: string) {
+    super(`Cover letter not found: ${identifier}`);
+    this.name = "CoverLetterNotFoundError";
+  }
+}
+
+export class CoverLetterForbiddenError extends ApplicationError {
+  constructor(message = "You do not have permission to access or modify this cover letter") {
+    super(message);
+    this.name = "CoverLetterForbiddenError";
+  }
+}
+
+export class ApplicationAnswerTruthfulnessViolationError extends ApplicationError {
+  readonly violations: Array<{ question: string; violationType: string; message: string }>;
+
+  constructor(
+    violations: Array<{ question: string; violationType: string; message: string }>
+  ) {
+    const summary = violations.map((v) => `[${v.violationType}] ${v.message}`).join("; ");
+    super(`Application answers truthfulness check failed: ${summary}`);
+    this.name = "ApplicationAnswerTruthfulnessViolationError";
+    this.violations = violations;
+  }
+}
+
+export class ApplicationAnswerNotFoundError extends ApplicationError {
+  constructor(identifier: string) {
+    super(`Application answer not found: ${identifier}`);
+    this.name = "ApplicationAnswerNotFoundError";
+  }
+}

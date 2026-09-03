@@ -7,3 +7,4 @@ export * from "./matching";
 export * from "./saved-jobs";
 export * from "./applications";
 export * from "./tailored-resumes";
+export * from "./cover-letters";

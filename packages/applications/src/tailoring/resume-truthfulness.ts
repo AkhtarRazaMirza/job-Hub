@@ -28,7 +28,7 @@ function normalizeString(val: string): string {
  */
 export function extractMetricsFromText(text: string): string[] {
   const metricRegex = /(?:\b\d+(?:\.\d+)?%|\$\s*\d+(?:,\d+)*(?:\.\d+)?(?:\s*[kKmMbB](?:illion)?)?|\b\d+(?:,\d+)*(?:\.\d+)?\s*(?:users|clients|customers|requests|rps|qps|services|nodes|engineers|team members|leads)\b)/gi;
-  const matches = text.match(metricRegex);
+  const matches = (text || "").match(metricRegex);
   return matches ? Array.from(new Set(matches.map((m) => m.trim().toLowerCase()))) : [];
 }
 

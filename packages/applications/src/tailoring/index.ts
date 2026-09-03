@@ -7,3 +7,4 @@ export * from "./types";
 export * from "./validation";
 export * from "./resume-truthfulness";
 export * from "./prompts";
+export * from "./document-renderer";
