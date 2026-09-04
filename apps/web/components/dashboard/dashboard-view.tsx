@@ -5,6 +5,7 @@ import { ProfileOverviewCard } from "./profile-overview-card";
 import { MatchCard } from "./match-card";
 import { SavedJobsTab } from "./saved-jobs-tab";
 import { ApplicationsTab } from "./applications-tab";
+import { AnalyticsTab } from "./analytics-tab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpcClient } from "@/lib/trpc/client";
@@ -20,6 +21,7 @@ import {
   Sparkles,
   Bookmark,
   Send,
+  BarChart3,
   FileText,
   SlidersHorizontal,
   RefreshCw,
@@ -52,7 +54,7 @@ export function DashboardView({
   initialSavedJobs,
   initialApplications,
 }: DashboardViewProps) {
-  const [activeTab, setActiveTab] = useState<"matches" | "saved" | "applications">("matches");
+  const [activeTab, setActiveTab] = useState<"matches" | "saved" | "applications" | "analytics">("matches");
   const [overview, setOverview] = useState<DashboardOverview | null>(initialOverview);
 
   // Matches Feed State
@@ -440,6 +442,17 @@ export function DashboardView({
               {overview?.stats.totalApplications ?? totalApplications}
             </Badge>
           </Button>
+
+          <Button
+            type="button"
+            variant={activeTab === "analytics" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("analytics")}
+            className="text-xs h-8 gap-1.5 cursor-pointer"
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            <span>Analytics</span>
+          </Button>
         </div>
 
         {/* Refresh button */}
@@ -452,7 +465,7 @@ export function DashboardView({
               reloadMatches(selectedDecision, selectedMinScore, selectedRemoteType, 0);
             } else if (activeTab === "saved") {
               reloadSavedJobs();
-            } else {
+            } else if (activeTab === "applications") {
               reloadApplications(selectedApplicationStatus);
             }
           }}
@@ -662,6 +675,9 @@ export function DashboardView({
           onDelete={handleDeleteApplication}
         />
       )}
+
+      {/* ANALYTICS VIEW */}
+      {activeTab === "analytics" && <AnalyticsTab />}
     </div>
   );
 }

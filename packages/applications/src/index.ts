@@ -12,3 +12,5 @@ export * from "./cover-letter";
 export * from "./answers";
 export * from "./orchestrator";
 export * from "./browser";
+export * from "./analytics/types";
+export * from "./analytics/validation";

@@ -7,6 +7,7 @@ import { savedJobsRouter } from "./saved-jobs";
 import { dashboardRouter } from "./dashboard";
 import { applicationsRouter } from "./applications";
 import { browserRouter } from "./browser";
+import { analyticsRouter } from "./analytics";
 
 export const appRouter = router({
   candidate: candidateRouter,
@@ -17,6 +18,7 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   applications: applicationsRouter,
   browser: browserRouter,
+  analytics: analyticsRouter,
 });
 
 export type AppRouter = typeof appRouter;

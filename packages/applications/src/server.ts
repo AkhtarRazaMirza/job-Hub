@@ -16,6 +16,8 @@ export * from "./answers/application-answerer";
 export * from "./answers/answers-repository";
 export * from "./orchestrator/preparation-service";
 export * from "./browser/server";
+export * from "./analytics/repository";
+export * from "./analytics/service";
 
 export const applicationRepository: ApplicationRepository =
   new DrizzleApplicationRepository();
