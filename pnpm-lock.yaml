@@ -108,6 +108,9 @@ importers:
       '@job-hub/ai':
         specifier: workspace:*
         version: link:../packages/ai
+      '@job-hub/applications':
+        specifier: workspace:*
+        version: link:../packages/applications
       '@job-hub/candidate':
         specifier: workspace:*
         version: link:../packages/candidate

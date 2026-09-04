@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@job-hub/ai": "workspace:*",
+    "@job-hub/applications": "workspace:*",
     "@job-hub/candidate": "workspace:*",
     "@job-hub/db": "workspace:*",
     "@job-hub/jobs": "workspace:*",

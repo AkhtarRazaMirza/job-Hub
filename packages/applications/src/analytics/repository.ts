@@ -46,7 +46,7 @@ import type { ScoreBand, TrendGranularity } from "./types";
  * Uses EXISTS subqueries against applicationEvents to verify milestone
  * reached without row multiplication or join duplicates.
  */
-const isAppliedSql = sql<boolean>`(
+export const isAppliedSql = sql<boolean>`(
   ${applications.status} IN ('APPLIED', 'UNDER_REVIEW', 'INTERVIEW_SCHEDULED', 'INTERVIEW_COMPLETED', 'OFFER', 'REJECTED')
   OR ${applications.submittedAt} IS NOT NULL
   OR EXISTS (
@@ -56,7 +56,7 @@ const isAppliedSql = sql<boolean>`(
   )
 )`;
 
-const reachedResponseSql = sql<boolean>`(
+export const reachedResponseSql = sql<boolean>`(
   ${applications.status} IN ('UNDER_REVIEW', 'INTERVIEW_SCHEDULED', 'INTERVIEW_COMPLETED', 'OFFER', 'REJECTED')
   OR EXISTS (
     SELECT 1 FROM ${applicationEvents}
@@ -65,7 +65,7 @@ const reachedResponseSql = sql<boolean>`(
   )
 )`;
 
-const reachedInterviewSql = sql<boolean>`(
+export const reachedInterviewSql = sql<boolean>`(
   ${applications.status} IN ('INTERVIEW_SCHEDULED', 'INTERVIEW_COMPLETED', 'OFFER')
   OR EXISTS (
     SELECT 1 FROM ${applicationEvents}
@@ -74,7 +74,7 @@ const reachedInterviewSql = sql<boolean>`(
   )
 )`;
 
-const reachedOfferSql = sql<boolean>`(
+export const reachedOfferSql = sql<boolean>`(
   ${applications.status} = 'OFFER'
   OR EXISTS (
     SELECT 1 FROM ${applicationEvents}
@@ -83,7 +83,7 @@ const reachedOfferSql = sql<boolean>`(
   )
 )`;
 
-const reachedRejectedSql = sql<boolean>`(
+export const reachedRejectedSql = sql<boolean>`(
   ${applications.status} = 'REJECTED'
   OR EXISTS (
     SELECT 1 FROM ${applicationEvents}

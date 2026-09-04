@@ -14,3 +14,4 @@ export * from "./orchestrator";
 export * from "./browser";
 export * from "./analytics/types";
 export * from "./analytics/validation";
+export * from "./learning";

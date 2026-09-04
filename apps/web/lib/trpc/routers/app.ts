@@ -8,6 +8,7 @@ import { dashboardRouter } from "./dashboard";
 import { applicationsRouter } from "./applications";
 import { browserRouter } from "./browser";
 import { analyticsRouter } from "./analytics";
+import { learningRouter } from "./learning";
 
 export const appRouter = router({
   candidate: candidateRouter,
@@ -19,6 +20,7 @@ export const appRouter = router({
   applications: applicationsRouter,
   browser: browserRouter,
   analytics: analyticsRouter,
+  learning: learningRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -6,6 +6,7 @@ import { MatchCard } from "./match-card";
 import { SavedJobsTab } from "./saved-jobs-tab";
 import { ApplicationsTab } from "./applications-tab";
 import { AnalyticsTab } from "./analytics-tab";
+import { LearningTab } from "./learning-tab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpcClient } from "@/lib/trpc/client";
@@ -22,6 +23,7 @@ import {
   Bookmark,
   Send,
   BarChart3,
+  Lightbulb,
   FileText,
   SlidersHorizontal,
   RefreshCw,
@@ -54,7 +56,9 @@ export function DashboardView({
   initialSavedJobs,
   initialApplications,
 }: DashboardViewProps) {
-  const [activeTab, setActiveTab] = useState<"matches" | "saved" | "applications" | "analytics">("matches");
+  const [activeTab, setActiveTab] = useState<
+    "matches" | "saved" | "applications" | "analytics" | "learning"
+  >("matches");
   const [overview, setOverview] = useState<DashboardOverview | null>(initialOverview);
 
   // Matches Feed State
@@ -453,6 +457,17 @@ export function DashboardView({
             <BarChart3 className="h-3.5 w-3.5" />
             <span>Analytics</span>
           </Button>
+
+          <Button
+            type="button"
+            variant={activeTab === "learning" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("learning")}
+            className="text-xs h-8 gap-1.5 cursor-pointer"
+          >
+            <Lightbulb className="h-3.5 w-3.5" />
+            <span>Learning</span>
+          </Button>
         </div>
 
         {/* Refresh button */}
@@ -678,6 +693,9 @@ export function DashboardView({
 
       {/* ANALYTICS VIEW */}
       {activeTab === "analytics" && <AnalyticsTab />}
+
+      {/* LEARNING VIEW */}
+      {activeTab === "learning" && <LearningTab />}
     </div>
   );
 }

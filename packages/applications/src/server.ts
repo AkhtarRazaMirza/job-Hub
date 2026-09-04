@@ -21,3 +21,18 @@ export * from "./analytics/service";
 
 export const applicationRepository: ApplicationRepository =
   new DrizzleApplicationRepository();
+
+export * from "./learning/repository";
+export * from "./learning/analyzer";
+export * from "./learning/pattern-detector";
+export * from "./learning/recommendation-agent";
+
+import { LearningRepository } from "./learning/repository";
+import { OutcomeAnalyzer } from "./learning/analyzer";
+import { PatternDetector } from "./learning/pattern-detector";
+import { RecommendationAgent } from "./learning/recommendation-agent";
+
+export const learningRepository = new LearningRepository();
+export const outcomeAnalyzer = new OutcomeAnalyzer();
+export const patternDetector = new PatternDetector();
+export const recommendationAgent = new RecommendationAgent();
