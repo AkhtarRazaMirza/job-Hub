@@ -24,6 +24,29 @@ export const auth = betterAuth({
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3099",
   ],
+  rateLimit: {
+    enabled: process.env.NODE_ENV === "production" && process.env.DISABLE_AUTH_RATE_LIMIT !== "true",
+    window: 10,
+    max: 100,
+    customRules: {
+      "/api/auth/sign-up/email": {
+        window: 10,
+        max: 50,
+      },
+      "/api/auth/sign-in/email": {
+        window: 10,
+        max: 50,
+      },
+      "/sign-up/email": {
+        window: 10,
+        max: 50,
+      },
+      "/sign-in/email": {
+        window: 10,
+        max: 50,
+      },
+    },
+  },
   secret:
     process.env.BETTER_AUTH_SECRET ||
     "development_insecure_better_auth_secret_minimum_32_characters",

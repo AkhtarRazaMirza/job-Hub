@@ -126,3 +126,57 @@ export class ApplicationAnswerNotFoundError extends ApplicationError {
     this.name = "ApplicationAnswerNotFoundError";
   }
 }
+
+export class BrowserExecutionError extends ApplicationError {
+  constructor(message: string) {
+    super(message);
+    this.name = "BrowserExecutionError";
+  }
+}
+
+export class BrowserExecutionNotFoundError extends BrowserExecutionError {
+  constructor(identifier: string) {
+    super(`Browser execution not found: ${identifier}`);
+    this.name = "BrowserExecutionNotFoundError";
+  }
+}
+
+export class BrowserExecutionForbiddenError extends BrowserExecutionError {
+  constructor(message = "You do not have permission to access or modify this browser execution") {
+    super(message);
+    this.name = "BrowserExecutionForbiddenError";
+  }
+}
+
+export class BrowserSafetyHaltError extends BrowserExecutionError {
+  readonly reason: string;
+  readonly details?: Record<string, unknown>;
+
+  constructor(reason: string, message: string, details?: Record<string, unknown>) {
+    super(`Browser agent safety halt: [${reason}] ${message}`);
+    this.name = "BrowserSafetyHaltError";
+    this.reason = reason;
+    this.details = details;
+  }
+}
+
+export class BrowserUrlValidationError extends BrowserExecutionError {
+  constructor(message: string) {
+    super(`Browser URL validation error: ${message}`);
+    this.name = "BrowserUrlValidationError";
+  }
+}
+
+export class BrowserUncertainSubmissionError extends BrowserExecutionError {
+  constructor(message = "Application submission state could not be verified with confidence") {
+    super(message);
+    this.name = "BrowserUncertainSubmissionError";
+  }
+}
+
+export class BrowserApprovalRequiredError extends BrowserExecutionError {
+  constructor(message = "Explicit human approval is required before submitting the application") {
+    super(message);
+    this.name = "BrowserApprovalRequiredError";
+  }
+}

@@ -15,6 +15,7 @@ export * from "./cover-letter/cover-letter-repository";
 export * from "./answers/application-answerer";
 export * from "./answers/answers-repository";
 export * from "./orchestrator/preparation-service";
+export * from "./browser/server";
 
 export const applicationRepository: ApplicationRepository =
   new DrizzleApplicationRepository();

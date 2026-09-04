@@ -11,3 +11,4 @@ export * from "./tailoring";
 export * from "./cover-letter";
 export * from "./answers";
 export * from "./orchestrator";
+export * from "./browser";
