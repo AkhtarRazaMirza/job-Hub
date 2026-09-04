@@ -389,7 +389,7 @@ export function DashboardView({
 
       {/* View Switcher Tabs: Matches vs Saved Jobs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant={activeTab === "matches" ? "default" : "outline"}

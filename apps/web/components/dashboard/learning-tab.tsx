@@ -329,48 +329,50 @@ export function LearningTab() {
                   )}
 
                   {/* Evidence Cohort Table */}
-                  <div className="rounded-lg border border-border/60 bg-muted/10 p-3 space-y-2">
-                    <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                      <BarChart className="h-3.5 w-3.5 text-primary" />
-                      <span>Empirical Outcome Evidence</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      {/* Primary Cohort */}
-                      <div className="bg-background/80 p-2.5 rounded border border-border/50 space-y-1">
-                        <div className="text-[11px] font-semibold text-primary">
-                          Primary: {rec.evidence.primaryValue}
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-2 text-[11px] text-muted-foreground">
-                          <div>Applications: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.applications}</span></div>
-                          <div>Interviews: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.interviews}</span></div>
-                          <div>Offers: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.offers}</span></div>
-                          <div>Rejections: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.rejections}</span></div>
-                        </div>
-                        <div className="pt-1 text-[11px] font-semibold text-foreground">
-                          Interview Rate: {rec.evidence.primaryMetric.disclosureText}
-                        </div>
+                  {rec.evidence?.primaryMetric && (
+                    <div className="rounded-lg border border-border/60 bg-muted/10 p-3 space-y-2">
+                      <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                        <BarChart className="h-3.5 w-3.5 text-primary" />
+                        <span>Empirical Outcome Evidence</span>
                       </div>
 
-                      {/* Comparison Cohort */}
-                      {rec.evidence.comparisonMetric && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        {/* Primary Cohort */}
                         <div className="bg-background/80 p-2.5 rounded border border-border/50 space-y-1">
-                          <div className="text-[11px] font-semibold text-muted-foreground">
-                            Comparison: {rec.evidence.comparisonValue ?? "Overall Baseline"}
+                          <div className="text-[11px] font-semibold text-primary">
+                            Primary: {rec.evidence.primaryValue}
                           </div>
                           <div className="grid grid-cols-2 gap-x-2 text-[11px] text-muted-foreground">
-                            <div>Applications: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.applications}</span></div>
-                            <div>Interviews: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.interviews}</span></div>
-                            <div>Offers: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.offers}</span></div>
-                            <div>Rejections: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.rejections}</span></div>
+                            <div>Applications: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.applications}</span></div>
+                            <div>Interviews: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.interviews}</span></div>
+                            <div>Offers: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.offers}</span></div>
+                            <div>Rejections: <span className="font-medium text-foreground">{rec.evidence.primaryMetric.rejections}</span></div>
                           </div>
-                          <div className="pt-1 text-[11px] font-semibold text-muted-foreground">
-                            Interview Rate: {rec.evidence.comparisonMetric.disclosureText}
+                          <div className="pt-1 text-[11px] font-semibold text-foreground">
+                            Interview Rate: {rec.evidence.primaryMetric.disclosureText}
                           </div>
                         </div>
-                      )}
+
+                        {/* Comparison Cohort */}
+                        {rec.evidence.comparisonMetric && (
+                          <div className="bg-background/80 p-2.5 rounded border border-border/50 space-y-1">
+                            <div className="text-[11px] font-semibold text-muted-foreground">
+                              Comparison: {rec.evidence.comparisonValue ?? "Overall Baseline"}
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-2 text-[11px] text-muted-foreground">
+                              <div>Applications: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.applications}</span></div>
+                              <div>Interviews: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.interviews}</span></div>
+                              <div>Offers: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.offers}</span></div>
+                              <div>Rejections: <span className="font-medium text-foreground">{rec.evidence.comparisonMetric.rejections}</span></div>
+                            </div>
+                            <div className="pt-1 text-[11px] font-semibold text-muted-foreground">
+                              Interview Rate: {rec.evidence.comparisonMetric.disclosureText}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
 
                 <CardFooter className="pt-1 pb-3.5 flex items-center justify-between gap-3 border-t border-border/50 text-xs">

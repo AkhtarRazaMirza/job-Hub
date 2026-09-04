@@ -54,7 +54,7 @@ export default async function ProfilePage() {
               </Link>
             </Button>
             <Button asChild size="sm">
-              <Link href="/">
+              <Link href="/sign-in?callbackUrl=/profile">
                 <LogIn className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 <span>Sign In / Register</span>
               </Link>
